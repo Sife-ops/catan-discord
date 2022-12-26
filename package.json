@@ -1,0 +1,17 @@
+{
+  "name": "catan-discord",
+  "version": "1.0.0",
+  "description": "Play Settlers of Catan on discord",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wyatt Goettsch",
+  "license": "ISC",
+  "workspaces": [
+    "web"
+  ],
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3"
+  }
+}
