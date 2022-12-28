@@ -46,7 +46,7 @@ functions:
 
   bot:
     name: ${self:service}-${opt:stage}-bot
-    handler: function/bot.main
+    handler: function/bot/main.handler
     events:
       - httpApi:
           path: /bot

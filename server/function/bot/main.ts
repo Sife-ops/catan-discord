@@ -3,8 +3,11 @@ import {
   APIGatewayProxyResultV2,
   Handler,
 } from "aws-lambda";
-import { z } from "zod";
+
+import * as commands from "./commands";
 import nacl from "tweetnacl";
+import { runner } from "./runner";
+import { z } from "zod";
 
 const envSchema = z.object({
   PUBLIC_KEY: z.string(),
@@ -12,29 +15,35 @@ const envSchema = z.object({
 
 const eventSchema = z.object({
   body: z.string(),
+  headers: z.object({
+    "x-signature-ed25519": z.string(),
+    "x-signature-timestamp": z.string(),
+  }),
 });
 
 const bodySchema = z.object({
   type: z.number(),
+  data: z.object({
+    name: z.string(),
+  }),
 });
 
-export const main: Handler<
+export const handler: Handler<
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2
 > = async (event) => {
   try {
     const parsedEnv = envSchema.parse(process.env);
     const parsedEvent = eventSchema.parse(event);
-    const body = bodySchema.parse(JSON.parse(parsedEvent.body));
+    const parsedBody = bodySchema.parse(JSON.parse(parsedEvent.body));
 
-    switch (body.type) {
+    switch (parsedBody.type) {
       case 1: {
-        const signature = event.headers["x-signature-ed25519"];
-        const timestamp = event.headers["x-signature-timestamp"];
-
         const verified = nacl.sign.detached.verify(
-          Buffer.from(timestamp + parsedEvent.body),
-          Buffer.from(signature!, "hex"),
+          Buffer.from(
+            parsedEvent.headers["x-signature-ed25519"] + parsedEvent.body
+          ),
+          Buffer.from(parsedEvent.headers["x-signature-timestamp"], "hex"),
           Buffer.from(parsedEnv.PUBLIC_KEY, "hex")
         );
 
@@ -49,18 +58,7 @@ export const main: Handler<
       }
 
       case 2: {
-        return {
-          type: 4,
-          data: {
-            embeds: [
-              {
-                title: "title",
-                description: "desc",
-                color: 0x00ffff,
-              },
-            ],
-          },
-        };
+        return await runner(commands, parsedBody.data.name, parsedBody);
       }
 
       default: {
