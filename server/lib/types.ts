@@ -1,4 +1,11 @@
-type Resource = "Gold" | "Spice" | "Wood" | "Lizard"
+/**
+ * undefined can be used to represent a non-resource tile
+ */
+type Resource = "Gold" | "Spice" | "Wood" | "Lizard" | undefined
+
+/**
+ * Player team colors
+ */
 type Colors = "White" | "Green" | "Black" | "Yellow"
 
 type Board = {
