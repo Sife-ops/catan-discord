@@ -9,7 +9,8 @@
   "author": "Wyatt Goettsch",
   "license": "ISC",
   "workspaces": [
-    "web"
+    "web",
+    "server"
   ],
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3"

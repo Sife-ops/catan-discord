@@ -1,0 +1,13 @@
+{
+  "name": "@catan-discord/server",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "nodemon -e ts --exec node ../node_modules/.bin/sls offline --stage local"
+  },
+  "devDependencies": {
+    "serverless": "^3.26.0",
+    "serverless-esbuild": "^1.34.0",
+    "serverless-lift": "^1.21.0",
+    "serverless-offline": "^12.0.3"
+  }
+}

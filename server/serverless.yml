@@ -1,0 +1,55 @@
+service: catan-discord
+frameworkVersion: "3"
+
+plugins:
+  - serverless-esbuild
+  - serverless-lift
+  # - serverless-plugin-conditional-functions
+  - serverless-offline
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs16.x
+  stage: ${opt:stage}
+  httpApi:
+    cors: true
+  environment:
+    STAGE: ${self:provider.stage}
+    # TABLE: ${self:service}-${opt:stage}-table
+    # iam:
+    #   role:
+    #     statements:
+    #       - Effect: Allow
+    #         Action:
+    #           - dynamodb:Query
+    #           - dynamodb:Scan
+    #           - dynamodb:GetItem
+    #           - dynamodb:PutItem
+    #           - dynamodb:UpdateItem
+    #           - dynamodb:DeleteItem
+    #         Resource:
+    #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}
+    #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}/index/*
+
+functions:
+  hello:
+    name: ${self:service}-${opt:stage}-hello
+    handler: function/hello.main
+    events:
+      - httpApi:
+          path: /hello
+          method: get
+
+# resources:
+#   Resources:
+#     hithlumTable:
+#       Type: "AWS::DynamoDB::Table"
+#       DeletionPolicy: Retain
+#       Properties: ${file(./serverless/table-properties.js)}
+
+# constructs:
+#   frontend:
+#     type: single-page-app
+#     path: ./web/dist
+
