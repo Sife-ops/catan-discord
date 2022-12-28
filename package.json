@@ -10,7 +10,8 @@
   "license": "ISC",
   "workspaces": [
     "web",
-    "server"
+    "server",
+    "cli"
   ],
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3"
