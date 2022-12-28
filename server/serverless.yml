@@ -16,21 +16,24 @@ provider:
     cors: true
   environment:
     STAGE: ${self:provider.stage}
+    PUBLIC_KEY: ${self:custom.global.PUBLIC_KEY.${self:provider.stage}}
     # TABLE: ${self:service}-${opt:stage}-table
-    # iam:
-    #   role:
-    #     statements:
-    #       - Effect: Allow
-    #         Action:
-    #           - dynamodb:Query
-    #           - dynamodb:Scan
-    #           - dynamodb:GetItem
-    #           - dynamodb:PutItem
-    #           - dynamodb:UpdateItem
-    #           - dynamodb:DeleteItem
-    #         Resource:
-    #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}
-    #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}/index/*
+  # iam:
+  #   role:
+  #     statements:
+  #       - Effect: Allow
+  #         Action:
+  #           - dynamodb:Query
+  #           - dynamodb:Scan
+  #           - dynamodb:GetItem
+  #           - dynamodb:PutItem
+  #           - dynamodb:UpdateItem
+  #           - dynamodb:DeleteItem
+  #         Resource:
+  #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}
+  #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}/index/*
+
+custom: ${file(./custom.yml)}
 
 functions:
   hello:
@@ -41,9 +44,17 @@ functions:
           path: /hello
           method: get
 
+  bot:
+    name: ${self:service}-${opt:stage}-bot
+    handler: function/bot.main
+    events:
+      - httpApi:
+          path: /bot
+          method: post
+
 # resources:
 #   Resources:
-#     hithlumTable:
+#     catanDiscordTable:
 #       Type: "AWS::DynamoDB::Table"
 #       DeletionPolicy: Retain
 #       Properties: ${file(./serverless/table-properties.js)}
