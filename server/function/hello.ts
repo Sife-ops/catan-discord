@@ -1,8 +1,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { model } from "@catan-discord/core/model";
 
-export const main = async (
+export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+  await model.entities.MapEntity.create({
+    mapId: "a",
+    data: "b",
+  }).go();
+
   return {
     statusCode: 200,
     body: JSON.stringify(

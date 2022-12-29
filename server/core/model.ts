@@ -1,25 +1,21 @@
 import { Service } from "electrodb";
 
-// import { ArticleEntity } from "./entity/article";
-// import { CommentEntity } from "./entity/comment";
-// import { FeedEntity } from "./entity/feed";
-// import { FriendEntity } from "./entity/friend";
-// import { MessageEntity } from "./entity/message";
-// import { RatingEntity } from "./entity/rating";
-// import { RoleEntity } from "./entity/role";
-import { UserEntity } from "./entity/user";
-// import { UserFeedEntity } from "./entity/user-feed";
-// import { UnreadEntity } from "./entity/unread";
+import { BuildingEntity } from "./entity/building";
+import { ChitEntity } from "./entity/chit";
+import { GameEntity } from "./entity/game";
+import { HarborEntity } from "./entity/harbor";
+import { MapEntity } from "./entity/map";
+import { PlayerEntity } from "./entity/player";
+import { RoadEntity } from "./entity/road";
+import { TerrainEntity } from "./entity/terrain";
 
 export const model = new Service({
-  // ArticleEntity,
-  // CommentEntity,
-  // FeedEntity,
-  // FriendEntity,
-  // MessageEntity,
-  // RatingEntity,
-  // RoleEntity,
-  UserEntity,
-  // UserFeedEntity,
-  // UnreadEntity,
+  BuildingEntity,
+  ChitEntity,
+  GameEntity,
+  HarborEntity,
+  MapEntity,
+  PlayerEntity,
+  RoadEntity,
+  TerrainEntity,
 });

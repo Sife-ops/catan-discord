@@ -17,32 +17,28 @@ provider:
   environment:
     STAGE: ${self:provider.stage}
     PUBLIC_KEY: ${self:custom.global.PUBLIC_KEY.${self:provider.stage}}
-    # TABLE: ${self:service}-${opt:stage}-table
-  # iam:
-  #   role:
-  #     statements:
-  #       - Effect: Allow
-  #         Action:
-  #           - dynamodb:Query
-  #           - dynamodb:Scan
-  #           - dynamodb:GetItem
-  #           - dynamodb:PutItem
-  #           - dynamodb:UpdateItem
-  #           - dynamodb:DeleteItem
-  #         Resource:
-  #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}
-  #           - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}/index/*
+    TABLE: ${self:service}-${opt:stage}-table
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}
+            - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}/index/*
 
-custom: ${file(./custom.yml)}
+custom: ${file(./serverless/custom.yml)}
 
 functions:
-  hello:
-    name: ${self:service}-${opt:stage}-hello
-    handler: function/hello.main
-    events:
-      - httpApi:
-          path: /hello
-          method: get
+  uploadMap:
+    name: ${self:service}-${opt:stage}-upload-map
+    handler: function/upload-map.handler
 
   bot:
     name: ${self:service}-${opt:stage}-bot
@@ -52,15 +48,14 @@ functions:
           path: /bot
           method: post
 
-# resources:
-#   Resources:
-#     catanDiscordTable:
-#       Type: "AWS::DynamoDB::Table"
-#       DeletionPolicy: Retain
-#       Properties: ${file(./serverless/table-properties.js)}
+resources:
+  Resources:
+    catanDiscordTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties: ${file(./serverless/table-properties.js)}
 
 # constructs:
 #   frontend:
 #     type: single-page-app
 #     path: ./web/dist
-
