@@ -28,18 +28,6 @@ export const RoadEntity = new Entity(
           composite: ["x1", "y1", "x2", "y2"],
         },
       },
-
-      game_player_: {
-        index: "gsi2",
-        pk: {
-          field: "gsi2pk",
-          composite: ["gameId", "userId"],
-        },
-        sk: {
-          field: "gsi2sk",
-          composite: ["x1", "y1", "x2", "y2"],
-        },
-      },
     },
 
     model: {

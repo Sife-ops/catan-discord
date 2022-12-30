@@ -28,18 +28,6 @@ export const BuildingEntity = new Entity(
           composite: ["x", "y"],
         },
       },
-
-      game_player_: {
-        index: "gsi2",
-        pk: {
-          field: "gsi2pk",
-          composite: ["gameId", "userId"],
-        },
-        sk: {
-          field: "gsi2sk",
-          composite: ["x", "y"],
-        },
-      },
     },
 
     model: {
