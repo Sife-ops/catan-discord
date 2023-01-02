@@ -15,8 +15,9 @@ provider:
   httpApi:
     cors: true
   environment:
-    STAGE: ${self:provider.stage}
+    ONBOARD_QUEUE: ${construct:onboardQueue.queueUrl}
     PUBLIC_KEY: ${self:custom.global.PUBLIC_KEY.${self:provider.stage}}
+    STAGE: ${self:provider.stage}
     TABLE: ${self:service}-${opt:stage}-table
   iam:
     role:
@@ -55,7 +56,11 @@ resources:
       DeletionPolicy: Retain
       Properties: ${file(./serverless/table-properties.js)}
 
-# constructs:
+constructs:
+  onboardQueue:
+    type: queue
+    worker:
+      handler: function/onboard-queue-worker.handler
 #   frontend:
 #     type: single-page-app
 #     path: ./web/dist

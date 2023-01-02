@@ -5,13 +5,17 @@ import {
 } from "aws-lambda";
 
 import * as commands from "./commands";
+import AWS from "aws-sdk";
 import nacl from "tweetnacl";
 import { model } from "@catan-discord/core/model";
 import { runner } from "@catan-discord/bot/runner";
 import { z } from "zod";
 
+const sqs = new AWS.SQS();
+
 const envSchema = z.object({
   PUBLIC_KEY: z.string(),
+  ONBOARD_QUEUE: z.string(),
 });
 
 const eventSchema = z.object({
@@ -61,6 +65,13 @@ export const handler: Handler<
       }
 
       case 2: {
+        await sqs
+          .sendMessage({
+            QueueUrl: parsedEnv.ONBOARD_QUEUE,
+            MessageBody: JSON.stringify(body.member.user),
+          })
+          .promise();
+
         return await runner(commands, parsedBody.data.name, body, {
           game: await model.entities.GameEntity.query
             .channel({ channelId: parsedBody.channel_id })
