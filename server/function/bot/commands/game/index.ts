@@ -1,5 +1,5 @@
 import * as subcommands from "./subcommands";
-import { optionSchema } from "@catan-discord/bot/commands/common";
+import { optionSchema } from "@catan-discord/bot/common";
 import { runner, Command } from "@catan-discord/bot/runner";
 import { z } from "zod";
 

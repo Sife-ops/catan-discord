@@ -7,7 +7,7 @@ import {
 import * as commands from "./commands";
 import AWS from "aws-sdk";
 import nacl from "tweetnacl";
-import { memberSchema, envSchema } from "./commands/common";
+import { memberSchema, envSchema } from "./common";
 import { model } from "@catan-discord/core/model";
 import { runner } from "@catan-discord/bot/runner";
 import { z } from "zod";

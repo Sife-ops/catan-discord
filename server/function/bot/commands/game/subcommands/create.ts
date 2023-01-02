@@ -2,7 +2,7 @@ import {
   getOptionValue,
   getNestedOptions,
   optionSchema,
-} from "@catan-discord/bot/commands/common";
+} from "@catan-discord/bot/common";
 
 import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";

@@ -4,7 +4,7 @@ import {
   optionSchema,
   usersSchema,
   getResolvedUser,
-} from "@catan-discord/bot/commands/common";
+} from "@catan-discord/bot/common";
 
 import AWS from "aws-sdk";
 import { Command } from "@catan-discord/bot/runner";
@@ -65,7 +65,7 @@ export const add: Command = {
     return {
       type: 4,
       data: {
-        content: JSON.stringify(body.data.resolved),
+        content: "added user"
       },
     };
   },
