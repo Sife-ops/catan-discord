@@ -7,7 +7,8 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "@catan-discord/core/*": ["./core/*"]
+      "@catan-discord/core/*": ["./core/*"],
+      "@catan-discord/bot/*": ["./function/bot/*"]
     }
   }
 }

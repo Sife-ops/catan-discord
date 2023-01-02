@@ -6,7 +6,7 @@ import {
 
 import * as commands from "./commands";
 import nacl from "tweetnacl";
-import { runner } from "./runner";
+import { runner } from "@catan-discord/bot/runner";
 import { z } from "zod";
 
 const envSchema = z.object({
@@ -35,7 +35,8 @@ export const handler: Handler<
   try {
     const parsedEnv = envSchema.parse(process.env);
     const parsedEvent = eventSchema.parse(event);
-    const parsedBody = bodySchema.parse(JSON.parse(parsedEvent.body));
+    const body = JSON.parse(parsedEvent.body);
+    const parsedBody = bodySchema.parse(body);
 
     switch (parsedBody.type) {
       case 1: {
@@ -58,7 +59,7 @@ export const handler: Handler<
       }
 
       case 2: {
-        return await runner(commands, parsedBody.data.name, parsedBody);
+        return await runner(commands, parsedBody.data.name, body);
       }
 
       default: {

@@ -38,7 +38,7 @@ const roadsWithCoords = (coords: Coords) => (road: Road) => {
   return false;
 };
 
-const playerLongestRoad = (roads: Road[]) => {
+const longestPlayerRoad = (roads: Road[]) => {
   const coords = roads.reduce<Array<Coords>>((a, c) => {
     return [...a, { x: c.x1, y: c.y1 }, { x: c.x2, y: c.y2 }];
   }, []);
@@ -100,7 +100,7 @@ const playerLongestRoad = (roads: Road[]) => {
     }
   }
 
-  const networkLongestRoad = (network: Node[]) => {
+  const longestNetworkRoad = (network: Node[]) => {
     const coordsWithRoads = network
       .map((n) => n.coords)
       .reduce<Array<Array<Coords>>>(
@@ -164,8 +164,8 @@ const playerLongestRoad = (roads: Road[]) => {
     return Math.max(...startingCoords.map((s) => traverse(s)));
   };
 
-  return Math.max(...networks.map((n) => networkLongestRoad(n)));
+  return Math.max(...networks.map((n) => longestNetworkRoad(n)));
 };
 
-const n = playerLongestRoad(green);
+const n = longestPlayerRoad(green);
 console.log(n);

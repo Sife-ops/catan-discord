@@ -1,5 +1,6 @@
 import { Dynamo } from "../dynamo";
 import { Entity, EntityItem } from "electrodb";
+import { ulid } from "ulid";
 
 export const GameEntity = new Entity(
   {
@@ -27,6 +28,18 @@ export const GameEntity = new Entity(
           composite: [],
         },
       },
+
+      channel_: {
+        index: "gsi2",
+        pk: {
+          field: "gsi2pk",
+          composite: ["channelId"],
+        },
+        sk: {
+          field: "gsi2sk",
+          composite: ["gameId"],
+        },
+      },
     },
 
     model: {
@@ -39,9 +52,20 @@ export const GameEntity = new Entity(
       gameId: {
         type: "string",
         required: true,
+        default: () => ulid(),
+      },
+
+      channelId: {
+        type: "string",
+        required: true,
       },
 
       mapId: {
+        type: "string",
+        required: true,
+      },
+
+      organizer: {
         type: "string",
         required: true,
       },

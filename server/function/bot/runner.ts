@@ -1,4 +1,3 @@
-import { APIGatewayProxyResultV2 } from "aws-lambda";
 import { z } from "zod";
 
 export const runner = async (
