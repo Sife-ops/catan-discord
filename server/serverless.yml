@@ -39,11 +39,11 @@ custom: ${file(./serverless/custom.yml)}
 functions:
   uploadMap:
     name: ${self:service}-${opt:stage}-upload-map
-    handler: function/upload-map.handler
+    handler: functions/upload-map.handler
 
   bot:
     name: ${self:service}-${opt:stage}-bot
-    handler: function/bot/main.handler
+    handler: functions/bot/main.handler
     events:
       - httpApi:
           path: /bot
@@ -60,7 +60,7 @@ constructs:
   onboardQueue:
     type: queue
     worker:
-      handler: function/onboard-queue-worker.handler
+      handler: functions/onboard-queue-worker.handler
 #   frontend:
 #     type: single-page-app
 #     path: ./web/dist

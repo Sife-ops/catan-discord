@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node16/tsconfig.json",
-  "include": ["function", "core"],
+  "include": ["functions", "core"],
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "node",
@@ -8,7 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@catan-discord/core/*": ["./core/*"],
-      "@catan-discord/bot/*": ["./function/bot/*"]
+      "@catan-discord/bot/*": ["./functions/bot/*"]
     }
   }
 }
