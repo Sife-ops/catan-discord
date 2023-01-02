@@ -3,6 +3,11 @@ import { z } from "zod";
 
 export interface CommandCtx {
   game: GameEntityType | undefined;
+  userId: string;
+  env: {
+    PUBLIC_KEY: string;
+    ONBOARD_QUEUE: string;
+  };
 }
 
 export type CommandHandler = (body: any, ctx: CommandCtx) => Promise<any>;

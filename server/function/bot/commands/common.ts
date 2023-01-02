@@ -1,4 +1,10 @@
+// todo: move up
 import { z } from "zod";
+
+export const envSchema = z.object({
+  PUBLIC_KEY: z.string(),
+  ONBOARD_QUEUE: z.string(),
+});
 
 export const memberSchema = z.object({
   user: z.object({
@@ -12,6 +18,22 @@ export const optionSchema = z.object({
   value: z.string().optional(),
 });
 type OptionSchema = z.infer<typeof optionSchema>;
+
+export const usersSchema = z.record(
+  z.object({
+    avatar: z.string(),
+    discriminator: z.string(),
+    id: z.string(),
+    username: z.string(),
+  })
+);
+type UsersSchema = z.infer<typeof usersSchema>;
+
+export const getResolvedUser = (users: UsersSchema, userId: string) => {
+  const user = users[userId];
+  if (!user) throw new Error("missing user");
+  return user;
+};
 
 export const getNestedOptions = (
   options: Array<OptionSchema & { options?: OptionSchema[] }>,

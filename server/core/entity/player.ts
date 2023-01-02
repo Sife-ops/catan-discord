@@ -25,7 +25,7 @@ export const PlayerEntity = new Entity(
         },
         sk: {
           field: "gsi1sk",
-          composite: ["playerId"],
+          composite: ["gameId"],
         },
       },
 
@@ -38,7 +38,7 @@ export const PlayerEntity = new Entity(
         },
         sk: {
           field: "gsi2sk",
-          composite: ["playerId"],
+          composite: ["userId"],
         },
       },
 

@@ -7,16 +7,13 @@ import {
 import * as commands from "./commands";
 import AWS from "aws-sdk";
 import nacl from "tweetnacl";
+import { memberSchema, envSchema } from "./commands/common";
 import { model } from "@catan-discord/core/model";
 import { runner } from "@catan-discord/bot/runner";
 import { z } from "zod";
 
+// todo: add to ctx?
 const sqs = new AWS.SQS();
-
-const envSchema = z.object({
-  PUBLIC_KEY: z.string(),
-  ONBOARD_QUEUE: z.string(),
-});
 
 const eventSchema = z.object({
   body: z.string(),
@@ -31,6 +28,7 @@ const bodySchema = z.object({
   data: z.object({
     name: z.string(),
   }),
+  member: memberSchema,
   type: z.number(),
 });
 
@@ -78,6 +76,8 @@ export const handler: Handler<
             .where(({ winner }, { notExists }) => notExists(winner))
             .go()
             .then(({ data }) => data[0]),
+          userId: parsedBody.member.user.id,
+          env: parsedEnv,
         });
       }
 
