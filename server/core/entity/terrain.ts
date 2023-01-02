@@ -15,25 +15,32 @@ export const TerrainEntity = new Entity(
           composite: [],
         },
       },
-
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
       game_: {
         collection: "game",
-        index: "gsi1",
+        index: "gsi2",
         pk: {
-          field: "gsi1pk",
+          field: "gsi2pk",
           composite: ["gameId"],
         },
         sk: {
-          field: "gsi1sk",
+          field: "gsi2sk",
           composite: ["x", "y"],
         },
       },
-    },
-
-    model: {
-      version: "1",
-      entity: "Terrain",
-      service: "catan-discord",
     },
 
     attributes: {
@@ -62,6 +69,12 @@ export const TerrainEntity = new Entity(
         type: ["pasture", "fields", "mountains", "hills", "forest"] as const,
         required: true,
       },
+    },
+
+    model: {
+      version: "1",
+      entity: "Terrain",
+      service: "catan-discord",
     },
   },
   Dynamo.Configuration

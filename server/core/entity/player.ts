@@ -1,5 +1,6 @@
 import { Dynamo } from "../dynamo";
 import { Entity, EntityItem } from "electrodb";
+import { ulid } from "ulid";
 
 export const PlayerEntity = new Entity(
   {
@@ -7,35 +8,61 @@ export const PlayerEntity = new Entity(
       player: {
         pk: {
           field: "pk",
-          composite: ["userId"],
+          composite: ["playerId"],
         },
         sk: {
           field: "sk",
-          composite: ["gameId"],
+          composite: [],
+        },
+      },
+
+      user_: {
+        collection: "user",
+        index: "gsi1",
+        pk: {
+          field: "gsi1pk",
+          composite: ["userId"],
+        },
+        sk: {
+          field: "gsi1sk",
+          composite: ["playerId"],
         },
       },
 
       game_: {
         collection: "game",
-        index: "gsi1",
+        index: "gsi2",
         pk: {
-          field: "gsi1pk",
+          field: "gsi2pk",
           composite: ["gameId"],
         },
         sk: {
-          field: "gsi1sk",
-          composite: ["userId"],
+          field: "gsi2sk",
+          composite: ["playerId"],
+        },
+      },
+
+      player_: {
+        collection: "player",
+        index: "gsi3",
+        pk: {
+          field: "gsi3pk",
+          composite: ["playerId"],
+        },
+        sk: {
+          field: "gsi3sk",
+          composite: [],
         },
       },
     },
 
-    model: {
-      version: "1",
-      entity: "Player",
-      service: "catan-discord",
-    },
-
     attributes: {
+      playerId: {
+        type: "string",
+        required: true,
+        default: () => ulid(),
+      },
+
       userId: {
         type: "string",
         required: true,
@@ -45,6 +72,12 @@ export const PlayerEntity = new Entity(
         type: "string",
         required: true,
       },
+    },
+
+    model: {
+      version: "1",
+      entity: "Player",
+      service: "catan-discord",
     },
   },
   Dynamo.Configuration

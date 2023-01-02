@@ -15,25 +15,45 @@ export const BuildingEntity = new Entity(
           composite: [],
         },
       },
-
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
       game_: {
         collection: "game",
-        index: "gsi1",
+        index: "gsi2",
         pk: {
-          field: "gsi1pk",
+          field: "gsi2pk",
           composite: ["gameId"],
         },
         sk: {
-          field: "gsi1sk",
+          field: "gsi2sk",
           composite: ["x", "y"],
         },
       },
-    },
 
-    model: {
-      version: "1",
-      entity: "Building",
-      service: "catan-discord",
+      player_: {
+        collection: "player",
+        index: "gsi3",
+        pk: {
+          field: "gsi3pk",
+          composite: ["playerId"],
+        },
+        sk: {
+          field: "gsi3sk",
+          composite: ["buildingId"],
+        },
+      },
     },
 
     attributes: {
@@ -48,7 +68,7 @@ export const BuildingEntity = new Entity(
         required: true,
       },
 
-      userId: {
+      playerId: {
         type: "string",
         required: true,
       },
@@ -67,6 +87,12 @@ export const BuildingEntity = new Entity(
         type: ["settlement", "city"],
         required: true,
       },
+    },
+
+    model: {
+      version: "1",
+      entity: "Building",
+      service: "catan-discord",
     },
   },
   Dynamo.Configuration

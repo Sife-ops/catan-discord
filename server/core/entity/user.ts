@@ -1,18 +1,18 @@
 import { Dynamo } from "../dynamo";
 import { Entity, EntityItem } from "electrodb";
-import { ulid } from "ulid";
+//
 
-export const GameEntity = new Entity(
+export const UserEntity = new Entity(
   {
     indexes: {
-      channel: {
+      user: {
         pk: {
           field: "pk",
-          composite: ["channelId"],
+          composite: ["userId"],
         },
         sk: {
           field: "sk",
-          composite: ["gameId"],
+          composite: [],
         },
       },
 
@@ -25,59 +25,40 @@ export const GameEntity = new Entity(
         },
         sk: {
           field: "gsi1sk",
-          composite: ["gameId"],
-        },
-      },
-
-      game_: {
-        collection: "game",
-        index: "gsi2",
-        pk: {
-          field: "gsi2pk",
-          composite: ["gameId"],
-        },
-        sk: {
-          field: "gsi2sk",
           composite: [],
         },
       },
     },
 
     attributes: {
-      channelId: {
-        type: "string",
-        required: true,
-      },
-
       userId: {
         type: "string",
         required: true,
       },
 
-      gameId: {
-        type: "string",
-        required: true,
-        default: () => ulid(),
-      },
-
-      map: {
+      username: {
         type: "string",
         required: true,
       },
 
-      winner: {
+      discriminator: {
         type: "string",
-        required: false,
+        required: true,
+      },
+
+      avatar: {
+        type: "string",
+        required: true,
       },
     },
 
     model: {
       version: "1",
-      entity: "Game",
+      entity: "User",
       service: "catan-discord",
     },
   },
   Dynamo.Configuration
 );
 
-export type GameEntityType = EntityItem<typeof GameEntity>;
+export type UserEntityType = EntityItem<typeof UserEntity>;

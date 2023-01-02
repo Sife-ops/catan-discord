@@ -15,25 +15,45 @@ export const RoadEntity = new Entity(
           composite: [],
         },
       },
-
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
       game_: {
         collection: "game",
-        index: "gsi1",
+        index: "gsi2",
         pk: {
-          field: "gsi1pk",
+          field: "gsi2pk",
           composite: ["gameId"],
         },
         sk: {
-          field: "gsi1sk",
+          field: "gsi2sk",
           composite: ["x1", "y1", "x2", "y2"],
         },
       },
-    },
 
-    model: {
-      version: "1",
-      entity: "Road",
-      service: "catan-discord",
+      player_: {
+        collection: "player",
+        index: "gsi3",
+        pk: {
+          field: "gsi3pk",
+          composite: ["playerId"],
+        },
+        sk: {
+          field: "gsi3sk",
+          composite: ["roadId"],
+        },
+      },
     },
 
     attributes: {
@@ -48,7 +68,7 @@ export const RoadEntity = new Entity(
         required: true,
       },
 
-      userId: {
+      playerId: {
         type: "string",
         required: true,
       },
@@ -72,6 +92,12 @@ export const RoadEntity = new Entity(
         type: "number",
         required: true,
       },
+    },
+
+    model: {
+      version: "1",
+      entity: "Road",
+      service: "catan-discord",
     },
   },
   Dynamo.Configuration

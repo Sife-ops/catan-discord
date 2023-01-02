@@ -15,25 +15,32 @@ export const ChitEntity = new Entity(
           composite: [],
         },
       },
-
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
       game_: {
         collection: "game",
-        index: "gsi1",
+        index: "gsi2",
         pk: {
-          field: "gsi1pk",
+          field: "gsi2pk",
           composite: ["gameId"],
         },
         sk: {
-          field: "gsi1sk",
+          field: "gsi2sk",
           composite: ["x", "y"],
         },
       },
-    },
-
-    model: {
-      version: "1",
-      entity: "Chit",
-      service: "catan-discord",
     },
 
     attributes: {
@@ -62,6 +69,12 @@ export const ChitEntity = new Entity(
         type: "number",
         required: true,
       },
+    },
+
+    model: {
+      version: "1",
+      entity: "Chit",
+      service: "catan-discord",
     },
   },
   Dynamo.Configuration

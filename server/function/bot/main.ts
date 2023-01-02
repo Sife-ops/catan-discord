@@ -63,7 +63,7 @@ export const handler: Handler<
       case 2: {
         return await runner(commands, parsedBody.data.name, body, {
           game: await model.entities.GameEntity.query
-            .channel_({ channelId: parsedBody.channel_id })
+            .channel({ channelId: parsedBody.channel_id })
             .where(({ winner }, { notExists }) => notExists(winner))
             .go()
             .then(({ data }) => data[0]),

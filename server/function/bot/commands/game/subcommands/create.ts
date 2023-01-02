@@ -57,8 +57,8 @@ export const create: Command = {
     // 3) create game
     const gameMutation = await model.entities.GameEntity.create({
       channelId: body.channel_id,
-      organizer: body.member.user.id,
-      mapId,
+      userId: body.member.user.id,
+      map: mapQuery.data[0].data,
     }).go();
 
     await model.entities.PlayerEntity.create({
