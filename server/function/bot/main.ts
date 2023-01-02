@@ -6,6 +6,7 @@ import {
 
 import * as commands from "./commands";
 import nacl from "tweetnacl";
+import { model } from "@catan-discord/core/model";
 import { runner } from "@catan-discord/bot/runner";
 import { z } from "zod";
 
@@ -22,10 +23,11 @@ const eventSchema = z.object({
 });
 
 const bodySchema = z.object({
-  type: z.number(),
+  channel_id: z.string(),
   data: z.object({
     name: z.string(),
   }),
+  type: z.number(),
 });
 
 export const handler: Handler<
@@ -59,7 +61,13 @@ export const handler: Handler<
       }
 
       case 2: {
-        return await runner(commands, parsedBody.data.name, body);
+        return await runner(commands, parsedBody.data.name, body, {
+          game: await model.entities.GameEntity.query
+            .channel_({ channelId: parsedBody.channel_id })
+            .where(({ winner }, { notExists }) => notExists(winner))
+            .go()
+            .then(({ data }) => data[0]),
+        });
       }
 
       default: {

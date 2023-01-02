@@ -8,7 +8,7 @@ import { z } from "zod";
 
 export const foo = {
   schema: undefined,
-  handler: async (event: any) => {
+  handler: async () => {
     return {
       type: 4,
       data: {

@@ -5,6 +5,7 @@ import {
   memberSchema,
 } from "@catan-discord/bot/commands/common";
 
+import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
 import { z } from "zod";
 
@@ -17,9 +18,9 @@ const schema = z.object({
 });
 type Schema = z.infer<typeof schema>;
 
-export const create = {
+export const create: Command = {
   schema,
-  handler: async (body: Schema) => {
+  handler: async (body: Schema, ctx) => {
     /**
      * 1) only one active game per channel_id
      * 2) map must exist
@@ -27,12 +28,7 @@ export const create = {
      */
 
     // 1) only one active game per channel_id
-    const gameQuery = await model.entities.GameEntity.query
-      .channel_({ channelId: body.channel_id })
-      .where(({ winner }, { notExists }) => notExists(winner))
-      .go();
-
-    if (gameQuery.data.length > 0) {
+    if (ctx.game) {
       return {
         type: 4,
         data: {

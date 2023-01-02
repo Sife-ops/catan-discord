@@ -1,9 +1,9 @@
 import * as subcommands from "./subcommands";
-import { runner } from "@catan-discord/bot/runner";
+import { runner, Command } from "@catan-discord/bot/runner";
 
-export const game = {
+export const game: Command = {
   schema: undefined,
-  handler: async (body: any) => {
-    return await runner(subcommands, body.data.options[0].name, body);
+  handler: async (body, ctx) => {
+    return await runner(subcommands, body.data.options[0].name, body, ctx);
   },
 };
