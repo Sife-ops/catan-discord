@@ -78,6 +78,7 @@ export const handler: Handler<
             .then(({ data }) => data[0]),
           userId: parsedBody.member.user.id,
           env: parsedEnv,
+          channelId: parsedBody.channel_id,
         });
       }
 

@@ -1,4 +1,3 @@
-// todo: move up
 import { z } from "zod";
 
 export const envSchema = z.object({
@@ -29,6 +28,7 @@ export const usersSchema = z.record(
 );
 type UsersSchema = z.infer<typeof usersSchema>;
 
+// todo: sus
 export const getResolvedUser = (users: UsersSchema, userId: string) => {
   const user = users[userId];
   if (!user) throw new Error("missing user");

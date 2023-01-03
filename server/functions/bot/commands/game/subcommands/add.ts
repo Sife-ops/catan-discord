@@ -65,7 +65,7 @@ export const add: Command = {
     return {
       type: 4,
       data: {
-        content: "added user"
+        content: "added player",
       },
     };
   },

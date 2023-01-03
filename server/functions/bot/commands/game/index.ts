@@ -16,7 +16,6 @@ export const game: Command = {
     const subcommandName = body.data.options[0].name;
 
     if (["add", "remove", "start", "cancel"].includes(subcommandName)) {
-      // todo: can't add/remove if game started
       if (!ctx.game) {
         // todo: not very dry
         return {
@@ -32,14 +31,17 @@ export const game: Command = {
             content: "you are not the organizer",
           },
         };
+      } else if (
+        ["add", "remove", "start"].includes(subcommandName) &&
+        ctx.game.started
+      ) {
+        return {
+          type: 4,
+          data: {
+            content: "game already started",
+          },
+        };
       }
-    } else if (subcommandName === "create" && ctx.game) {
-      return {
-        type: 4,
-        data: {
-          content: "game already exists",
-        },
-      };
     }
 
     return await runner(subcommands, subcommandName, body, ctx);

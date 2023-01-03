@@ -1,30 +1,27 @@
-import {
-  getOptionValue,
-  getNestedOptions,
-  optionSchema,
-} from "@catan-discord/bot/common";
-
 import { Command } from "@catan-discord/bot/runner";
+import { getOptionValue, getNestedOptions } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
-import { z } from "zod";
-
-const schema = z.object({
-  channel_id: z.string(),
-  data: z.object({
-    options: z.array(optionSchema),
-  }),
-});
-type Schema = z.infer<typeof schema>;
 
 export const create: Command = {
-  schema,
-  handler: async (body: Schema, { userId }) => {
+  schema: undefined,
+  handler: async (body, { userId, game, channelId }) => {
     /**
-     * 1) map must exist
-     * 2) create game
+     * 1) one game per channel
+     * 2) map must exist
+     * 3) create game
      */
 
-    // 1) map must exist
+    // 1) one game per channel
+    if (game) {
+      return {
+        type: 4,
+        data: {
+          content: "game already exists",
+        },
+      };
+    }
+
+    // 2) map must exist
     const mapId = getOptionValue(
       getNestedOptions(body.data.options, "create"),
       "map"
@@ -33,7 +30,7 @@ export const create: Command = {
     const map = await model.entities.MapEntity.query
       .map({ mapId })
       .go()
-      .then(({ data }) => data[0]);
+      .then(({ data }) => data[0]?.data);
 
     if (!map) {
       return {
@@ -44,10 +41,10 @@ export const create: Command = {
       };
     }
 
-    // 2) create game
+    // 3) create game
     const gameMutation = await model.entities.GameEntity.create({
-      channelId: body.channel_id,
-      map: map.data,
+      channelId,
+      map,
       userId,
     }).go();
 

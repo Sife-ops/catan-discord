@@ -65,6 +65,12 @@ export const GameEntity = new Entity(
         required: true,
       },
 
+      started: {
+        type: "boolean",
+        required: true,
+        default: false,
+      },
+
       winner: {
         type: "string",
         required: false,

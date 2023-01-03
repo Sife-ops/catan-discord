@@ -8,6 +8,7 @@ export interface CommandCtx {
     PUBLIC_KEY: string;
     ONBOARD_QUEUE: string;
   };
+  channelId: string;
 }
 
 export type CommandHandler = (body: any, ctx: CommandCtx) => Promise<any>;
