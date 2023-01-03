@@ -1,9 +1,10 @@
 import {
-  getOptionValue,
+  genericResponse,
   getNestedOptions,
+  getOptionValue,
+  getResolvedUser,
   optionSchema,
   usersSchema,
-  getResolvedUser,
 } from "@catan-discord/bot/common";
 
 import AWS from "aws-sdk";
@@ -40,12 +41,7 @@ export const add: Command = {
       .go()
       .then(({ data }) => data[0]);
     if (player) {
-      return {
-        type: 4,
-        data: {
-          content: "already added",
-        },
-      };
+      return genericResponse("already added");
     }
 
     await sqs
@@ -62,11 +58,6 @@ export const add: Command = {
       userId,
     }).go();
 
-    return {
-      type: 4,
-      data: {
-        content: "added player",
-      },
-    };
+    return genericResponse("added player");
   },
 };

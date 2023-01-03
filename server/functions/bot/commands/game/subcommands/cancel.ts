@@ -1,4 +1,5 @@
 import { Command } from "@catan-discord/bot/runner";
+import { genericResponse } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const cancel: Command = {
@@ -12,11 +13,6 @@ export const cancel: Command = {
       .set({ winner: "none" })
       .go();
 
-    return {
-      type: 4,
-      data: {
-        content: "game cancelled",
-      },
-    };
+    return genericResponse("game cancelled");
   },
 };

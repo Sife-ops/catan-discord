@@ -1,5 +1,10 @@
+import {
+  getOptionValue,
+  getNestedOptions,
+  genericResponse,
+} from "@catan-discord/bot/common";
+
 import { Command } from "@catan-discord/bot/runner";
-import { getOptionValue, getNestedOptions } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const remove: Command = {
@@ -11,12 +16,7 @@ export const remove: Command = {
     );
 
     if (userId === ctx.userId) {
-      return {
-        type: 4,
-        data: {
-          content: "cannot remove organizer",
-        },
-      };
+      return genericResponse("cannot remove organizer");
     }
 
     if (!ctx.game) throw new Error("missing game");
@@ -29,21 +29,11 @@ export const remove: Command = {
       .then(({ data }) => data[0]?.playerId);
 
     if (!playerId) {
-      return {
-        type: 4,
-        data: {
-          content: "player does not exist",
-        },
-      };
+      return genericResponse("player does not exist");
     }
 
     await model.entities.PlayerEntity.remove({ playerId }).go();
 
-    return {
-      type: 4,
-      data: {
-        content: "removed player",
-      },
-    };
+    return genericResponse("removed player");
   },
 };

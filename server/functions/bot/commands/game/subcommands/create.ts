@@ -1,5 +1,10 @@
+import {
+  getOptionValue,
+  getNestedOptions,
+  genericResponse,
+} from "@catan-discord/bot/common";
+
 import { Command } from "@catan-discord/bot/runner";
-import { getOptionValue, getNestedOptions } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const create: Command = {
@@ -13,12 +18,7 @@ export const create: Command = {
 
     // 1) one game per channel
     if (game) {
-      return {
-        type: 4,
-        data: {
-          content: "game already exists",
-        },
-      };
+      return genericResponse("game already exists");
     }
 
     // 2) map must exist
@@ -33,12 +33,7 @@ export const create: Command = {
       .then(({ data }) => data[0]?.data);
 
     if (!map) {
-      return {
-        type: 4,
-        data: {
-          content: "map does not exist",
-        },
-      };
+      return genericResponse("map does not exist");
     }
 
     // 3) create game
@@ -53,11 +48,6 @@ export const create: Command = {
       userId,
     }).go();
 
-    return {
-      type: 4,
-      data: {
-        content: "game created",
-      },
-    };
+    return genericResponse("game created");
   },
 };

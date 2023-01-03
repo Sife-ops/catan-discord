@@ -28,6 +28,15 @@ export const usersSchema = z.record(
 );
 type UsersSchema = z.infer<typeof usersSchema>;
 
+export const genericResponse = (content: string) => {
+  return {
+    type: 4,
+    data: {
+      content,
+    },
+  };
+};
+
 // todo: sus
 export const getResolvedUser = (users: UsersSchema, userId: string) => {
   const user = users[userId];
