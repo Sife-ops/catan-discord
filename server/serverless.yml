@@ -40,6 +40,14 @@ functions:
     name: ${self:service}-${opt:stage}-upload-map
     handler: functions/upload-map.handler
 
+  hello:
+    name: ${self:service}-${opt:stage}-hello
+    handler: functions/hello.handler
+    events:
+      - httpApi:
+          path: /hello
+          method: post
+
   game:
     name: ${self:service}-${opt:stage}-game
     handler: functions/game.handler
@@ -68,6 +76,7 @@ constructs:
     type: queue
     worker:
       handler: functions/onboard-queue-worker.handler
-#   frontend:
-#     type: single-page-app
-#     path: ./web/dist
+
+  web:
+    type: single-page-app
+    path: ../web/dist
