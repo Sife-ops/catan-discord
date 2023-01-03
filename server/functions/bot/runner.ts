@@ -7,6 +7,7 @@ export interface CommandCtx {
   env: {
     PUBLIC_KEY: string;
     ONBOARD_QUEUE: string;
+    WEB_URL: string;
   };
   channelId: string;
 }

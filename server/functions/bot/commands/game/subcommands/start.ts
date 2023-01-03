@@ -4,7 +4,7 @@ import { model } from "@catan-discord/core/model";
 
 export const start: Command = {
   schema: undefined,
-  handler: async (_, { game, channelId }) => {
+  handler: async (_, { game, channelId, env: { WEB_URL } }) => {
     /**
      * ) count players
      * ) initialize game
@@ -82,6 +82,18 @@ export const start: Command = {
       .set({ started: true })
       .go();
 
-    return genericResponse("game started");
+    return {
+      type: 4,
+      data: {
+        content: "game started",
+        embeds: [
+          {
+            title: "game url",
+            url: `https://${WEB_URL}/game/${game.gameId}`,
+            color: 0xff0000,
+          },
+        ],
+      },
+    };
   },
 };

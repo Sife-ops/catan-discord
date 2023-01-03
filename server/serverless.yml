@@ -18,6 +18,7 @@ provider:
     PUBLIC_KEY: ${self:custom.global.PUBLIC_KEY.${self:provider.stage}}
     STAGE: ${self:provider.stage}
     TABLE: ${self:service}-${opt:stage}-table
+    WEB_URL: ${construct:web.cname}
   iam:
     role:
       statements:
@@ -39,14 +40,6 @@ functions:
   uploadMap:
     name: ${self:service}-${opt:stage}-upload-map
     handler: functions/upload-map.handler
-
-  hello:
-    name: ${self:service}-${opt:stage}-hello
-    handler: functions/hello.handler
-    events:
-      - httpApi:
-          path: /hello
-          method: post
 
   game:
     name: ${self:service}-${opt:stage}-game

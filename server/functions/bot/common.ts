@@ -3,6 +3,7 @@ import { z } from "zod";
 export const envSchema = z.object({
   PUBLIC_KEY: z.string(),
   ONBOARD_QUEUE: z.string(),
+  WEB_URL: z.string(),
 });
 
 export const memberSchema = z.object({

@@ -47,7 +47,7 @@ export const handler: Handler<
       ok: true,
       data: {
         gameCollection,
-        users
+        users,
       },
     });
   } catch (e) {
