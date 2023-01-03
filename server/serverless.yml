@@ -4,7 +4,6 @@ frameworkVersion: "3"
 plugins:
   - serverless-esbuild
   - serverless-lift
-  # - serverless-plugin-conditional-functions
   - serverless-offline
 
 provider:
@@ -40,6 +39,14 @@ functions:
   uploadMap:
     name: ${self:service}-${opt:stage}-upload-map
     handler: functions/upload-map.handler
+
+  game:
+    name: ${self:service}-${opt:stage}-game
+    handler: functions/game.handler
+    events:
+      - httpApi:
+          path: /game
+          method: post
 
   bot:
     name: ${self:service}-${opt:stage}-bot
