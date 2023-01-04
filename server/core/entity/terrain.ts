@@ -66,7 +66,14 @@ export const TerrainEntity = new Entity(
       },
 
       terrain: {
-        type: ["pasture", "fields", "mountains", "hills", "forest"] as const,
+        type: [
+          "pasture",
+          "fields",
+          "mountains",
+          "hills",
+          "forest",
+          "desert",
+        ] as const,
         required: true,
       },
     },
