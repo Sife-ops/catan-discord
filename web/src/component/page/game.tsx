@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 export const Game = () => {
   const { gameId } = useParams();
   const [hexes, setHexes] = useState<JSX.Element[]>();
+  const [chits, setChits] = useState<JSX.Element[]>();
 
   useEffect(() => {
     fetch(import.meta.env.VITE_API_URL + "/game", {
@@ -18,7 +19,9 @@ export const Game = () => {
           gameCollection: {
             GameEntity: Entity.GameEntityType[];
             TerrainEntity: Entity.TerrainEntityType[];
+            ChitEntity: Entity.ChitEntityType[];
           };
+          users: Entity.UserEntityType[];
         };
       })
       .then((data) => {
@@ -39,13 +42,15 @@ export const Game = () => {
           }, []);
 
         setHexes([
-          ...data.gameCollection.TerrainEntity.map((e) =>
-            fn(hexColor(e.terrain))(e)
-          ),
           ...flatMap
             .filter((e) => ["ocean", "harbor"].includes(e.type))
-            .map(fn("blue")),
+            .map(mapHex("blue")),
+          ...data.gameCollection.TerrainEntity.map((e) =>
+            mapHex(terrainColor(e.terrain))(e)
+          ),
         ]);
+
+        setChits(data.gameCollection.ChitEntity.map(mapChit));
 
         console.log(flatMap);
       });
@@ -56,7 +61,7 @@ export const Game = () => {
       {hexes && (
         <svg viewBox="0 0 120 150">
           <defs>
-            <g id="pod">
+            <g id="hex">
               <polygon
                 stroke="#000000"
                 strokeWidth="0.5"
@@ -64,35 +69,58 @@ export const Game = () => {
               />
             </g>
           </defs>
-          <g className="pod-wrap">{hexes}</g>
+          <g transform="translate(10, 10)">
+            {hexes}
+            {chits}
+          </g>
         </svg>
       )}
     </div>
   );
 };
 
-// const fn = (X: number, Y: number, color: string) => {
-const fn = (color: string) => (e: { x: number; y: number }) => {
-  let x = 11;
-  x = x + (e.x * 30) / 3;
-  if (e.y % 2 !== 0) {
+interface Coords {
+  x: number;
+  y: number;
+}
+
+const translol = (c: Coords) => {
+  let x = c.x * 10;
+  if (c.y % 2 !== 0) {
     x = x + 5;
   }
 
-  let y = 10;
-  y = y + e.y * 9;
+  return {
+    x,
+    y: c.y * 9,
+  };
+};
 
+const mapChit = (e: Entity.ChitEntityType) => {
+  const { x, y } = translol(e);
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <circle cx={0} cy={0} r={3} style={{ fill: "black" }} />
+      <text fill="white" fontSize={4} x={-1} y={1}>
+        {e.value}
+      </text>
+    </g>
+  );
+};
+
+const mapHex = (color: string) => (e: Coords) => {
+  const { x, y } = translol(e);
   return (
     <use
       key={`${x}, ${y}`}
-      xlinkHref="#pod"
+      xlinkHref="#hex"
       transform={`translate(${x}, ${y})`}
       style={{ fill: color }}
     />
   );
 };
 
-const hexColor = (t: string) => {
+const terrainColor = (t: string) => {
   switch (t) {
     case "fields":
       return "wheat";
