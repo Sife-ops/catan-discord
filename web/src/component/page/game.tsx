@@ -85,7 +85,7 @@ export const Game = () => {
 
               return (
                 <use
-                  key={`${x},${y}`}
+                  key={`${x}, ${y}`}
                   xlinkHref="#pod"
                   transform={`translate(${x}, ${y})`}
                   style={{ fill: fn() }}
