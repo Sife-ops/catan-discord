@@ -44,15 +44,11 @@ export const Game = () => {
         setHexes([
           ...flatMap
             .filter((e) => ["ocean", "harbor"].includes(e.type))
-            .map(mapHex("blue")),
-          ...data.gameCollection.TerrainEntity.map((e) =>
-            mapHex(terrainColor(e.terrain))(e)
-          ),
+            .map(mapHex),
+          ...data.gameCollection.TerrainEntity.map(mapHex),
         ]);
 
         setChits(data.gameCollection.ChitEntity.map(mapChit));
-
-        console.log(flatMap);
       });
   }, []);
 
@@ -60,15 +56,6 @@ export const Game = () => {
     <div>
       {hexes && (
         <svg viewBox="0 0 120 150">
-          <defs>
-            <g id="hex">
-              <polygon
-                stroke="#000000"
-                strokeWidth="0.5"
-                points="5,-9 -5,-9 -10,0 -5,9 5,9 10,0"
-              />
-            </g>
-          </defs>
           <g transform="translate(10, 10)">
             {hexes}
             {chits}
@@ -84,7 +71,7 @@ interface Coords {
   y: number;
 }
 
-const translol = (c: Coords) => {
+const translate = (c: Coords) => {
   let x = c.x * 10;
   if (c.y % 2 !== 0) {
     x = x + 5;
@@ -97,9 +84,9 @@ const translol = (c: Coords) => {
 };
 
 const mapChit = (e: Entity.ChitEntityType) => {
-  const { x, y } = translol(e);
+  const { x, y } = translate(e);
   return (
-    <g transform={`translate(${x}, ${y})`}>
+    <g transform={`translate(${x}, ${y})`} key={`x${x}y${y}`}>
       <circle cx={0} cy={0} r={3} style={{ fill: "black" }} />
       <text fill="white" fontSize={4} x={-1} y={1}>
         {e.value}
@@ -108,19 +95,21 @@ const mapChit = (e: Entity.ChitEntityType) => {
   );
 };
 
-const mapHex = (color: string) => (e: Coords) => {
-  const { x, y } = translol(e);
+const mapHex = (e: { x: number; y: number; terrain?: string }) => {
+  const { x, y } = translate(e);
   return (
-    <use
-      key={`${x}, ${y}`}
-      xlinkHref="#hex"
-      transform={`translate(${x}, ${y})`}
-      style={{ fill: color }}
-    />
+    <g transform={`translate(${x}, ${y})`} key={`x${x}y${y}`}>
+      <polygon
+        stroke="#000000"
+        strokeWidth="0.5"
+        style={{ fill: terrainColor(e.terrain) }}
+        points="5,-9 -5,-9 -10,0 -5,9 5,9 10,0"
+      />
+    </g>
   );
 };
 
-const terrainColor = (t: string) => {
+const terrainColor = (t?: string) => {
   switch (t) {
     case "fields":
       return "wheat";
@@ -135,6 +124,6 @@ const terrainColor = (t: string) => {
     case "mountains":
       return "slategray";
     default:
-      return "azure";
+      return "blue";
   }
 };
