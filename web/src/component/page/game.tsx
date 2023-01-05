@@ -54,14 +54,12 @@ export const Game = () => {
 
   return (
     <div>
-      {hexes && (
-        <svg viewBox="0 0 120 150">
-          <g transform="translate(10, 10)">
-            {hexes}
-            {chits}
-          </g>
-        </svg>
-      )}
+      <svg viewBox="0 0 120 150">
+        <g transform="translate(10, 10)">
+          {hexes}
+          {chits}
+        </g>
+      </svg>
     </div>
   );
 };

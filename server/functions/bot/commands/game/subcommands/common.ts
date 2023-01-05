@@ -1,4 +1,4 @@
-export const randomNoRepeat = (array: string[]) => {
+export const randomNoRepeat = <T>(array: T[]) => {
   let copy = array.slice(0);
   return () => {
     if (copy.length < 1) {
