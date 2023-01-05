@@ -66,7 +66,7 @@ export const HarborEntity = new Entity(
       },
 
       resource: {
-        type: ["wool", "wheat", "ore", "brick", "lumber"] as const,
+        type: ["wool", "grain", "ore", "brick", "lumber", "any"] as const,
         required: true,
       },
 

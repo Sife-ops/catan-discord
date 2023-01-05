@@ -2,21 +2,22 @@ import { Command } from "@catan-discord/bot/runner";
 import { TerrainEntityType } from "@catan-discord/core/entity";
 import { genericResponse } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
-import { randomNoRepeat } from "./common";
 
 export const start: Command = {
   schema: undefined,
   handler: async (_, { game, channelId, env: { WEB_URL } }) => {
     /**
-     * ) count players
-     * ) initialize game
-     *   ) resources
-     *   ) chits
-     *   ) harbors
-     * ) start game
+     * 1) count players
+     * 2) initialize game
+     *   2a) parse map data
+     *   2b) resources
+     *   2c) chits
+     *   2d) harbors
+     * 3) create entities
+     * 4) start game
      */
 
-    // ) count players
+    // 1) count players
     if (!game) throw new Error("missing game");
     const playerCount = await model.entities.PlayerEntity.query
       .game_({ gameId: game.gameId })
@@ -27,10 +28,10 @@ export const start: Command = {
       return genericResponse("not enough players");
     }
 
-    // todo: "too many players"
+    // todo: "too many players" condition
 
-    // ) initialize game
-    // ) parse map data
+    // 2) initialize game
+    // 2a) parse map data
     const map = JSON.parse(game.map) as { type: string }[][];
     const flatMap = map
       .map((row, iRow) =>
@@ -47,38 +48,40 @@ export const start: Command = {
     const terrains = flatMap.filter((e) => e.type === "terrain");
     const harbors = flatMap.filter((e) => e.type === "harbor");
 
-    // ) constants
-
     /**
-     * this determines the ratio of resource tiles
+     * todo: everything after this is not very dry, too many constants
      */
 
+    // 2b) resources
     const nDeserts = Math.floor(terrains.length / 19);
     const nNonDeserts = terrains.length - nDeserts;
     const nAbundantResource = Math.floor((nNonDeserts * 2) / 9);
     const nSparceResource = Math.floor(nNonDeserts / 6);
-    const nRemainingResource =
-      nNonDeserts - nAbundantResource * 3 - nSparceResource * 2;
 
-    // ) resources
-    const resourceValues = [
+    let resourceValues: string[] = [
       ...Array(nDeserts).fill("desert"),
       ...Array(nAbundantResource).fill("pasture"),
       ...Array(nAbundantResource).fill("forest"),
       ...Array(nAbundantResource).fill("fields"),
       ...Array(nSparceResource).fill("mountains"),
       ...Array(nSparceResource).fill("hills"),
-      ...Array(nRemainingResource)
-        .fill(null)
-        .map(() => {
-          return ["pasture", "fields", "mountains", "hills", "forest"][
-            Math.floor(Math.random() * 5)
-          ];
-        }),
     ];
 
-    const resourceChooser = randomNoRepeat<string>(resourceValues);
+    const nRemainingResource = nNonDeserts - resourceValues.length;
+    if (nRemainingResource > 0) {
+      resourceValues = [
+        ...resourceValues,
+        ...Array(nRemainingResource)
+          .fill(null)
+          .map(() => {
+            return ["pasture", "fields", "mountains", "hills", "forest"][
+              Math.floor(Math.random() * 5)
+            ];
+          }),
+      ];
+    }
 
+    const resourceChooser = randomNoRepeat<string>(resourceValues);
     const resources = terrains.map(
       ({ x, y }): TerrainEntityType => ({
         gameId: game.gameId,
@@ -89,11 +92,11 @@ export const start: Command = {
       })
     );
 
-    // ) chits
+    // 2c) chits
     const nRareChit = nNonDeserts / 18;
     const nCommonChit = nNonDeserts / 9;
 
-    let chitValues = [
+    let chitValues: number[] = [
       ...Array(Math.floor(nRareChit)).fill(2),
       ...Array(Math.floor(nCommonChit)).fill(3),
       ...Array(Math.floor(nCommonChit)).fill(4),
@@ -107,7 +110,6 @@ export const start: Command = {
     ];
 
     const nRemainingChit = nNonDeserts - chitValues.length;
-
     if (nRemainingChit > 0) {
       chitValues = [
         ...chitValues,
@@ -123,9 +125,37 @@ export const start: Command = {
 
     const chitChooser = randomNoRepeat<number>(chitValues);
 
-    // ) harbors
+    // 2d) harbors
+    const nHarbor = harbors.length;
+    const nSpecificHarbor = Math.floor(nHarbor / 9);
+    const nAnyHarbor = Math.floor((nHarbor * 4) / 9);
 
-    // ) create entities
+    let harborResources: string[] = [
+      ...Array(nSpecificHarbor).fill("brick"),
+      ...Array(nSpecificHarbor).fill("ore"),
+      ...Array(nSpecificHarbor).fill("grain"),
+      ...Array(nSpecificHarbor).fill("wool"),
+      ...Array(nSpecificHarbor).fill("lumber"),
+      ...Array(nAnyHarbor).fill("any"),
+    ];
+
+    const nRemainingHarbor = nHarbor - harborResources.length;
+    if (nRemainingHarbor > 0) {
+      harborResources = [
+        ...harborResources,
+        ...Array(nRemainingHarbor)
+          .fill(null)
+          .map(() => {
+            return ["brick", "ore", "grain", "wool", "lumber", "any"][
+              Math.floor(Math.random() * 6)
+            ];
+          }),
+      ];
+    }
+
+    const harborChooser = randomNoRepeat(harborResources);
+
+    // 3) create entities
     await Promise.all([
       ...resources.map((e) => model.entities.TerrainEntity.create(e).go()),
       ...resources
@@ -138,24 +168,26 @@ export const start: Command = {
             y,
           }).go()
         ),
-      ...harbors.map(({ x, y }) =>
-        model.entities.HarborEntity.create({
+      ...harbors.map(({ x, y }) => {
+        const chosen = harborChooser();
+        return model.entities.HarborEntity.create({
           gameId: game.gameId,
-          resource: "brick",
-          ratio: "2:1",
+          // @ts-ignore
+          resource: chosen,
+          ratio: chosen === "any" ? "3:1" : "2:1",
           x,
           y,
-        }).go()
-      ),
-    ]);
+        }).go();
+      }),
 
-    // ) start game
-    await model.entities.GameEntity.update({
-      channelId,
-      gameId: game.gameId,
-    })
-      .set({ started: true })
-      .go();
+      // 4) start game
+      model.entities.GameEntity.update({
+        channelId,
+        gameId: game.gameId,
+      })
+        .set({ started: true })
+        .go(),
+    ]);
 
     return {
       type: 4,
@@ -171,4 +203,17 @@ export const start: Command = {
       },
     };
   },
+};
+
+const randomNoRepeat = <T>(array: T[]) => {
+  let copy = array.slice(0);
+  return () => {
+    if (copy.length < 1) {
+      copy = array.slice(0);
+    }
+    let index = Math.floor(Math.random() * copy.length);
+    let item = copy[index];
+    copy.splice(index, 1);
+    return item;
+  };
 };
