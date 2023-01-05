@@ -8,6 +8,7 @@ Play Catan in Discord with ur friendz.
 
 # todo
 
+- robber
 - move `function` to `functions`
 - commands
     - `give <player> <number> <resource>`

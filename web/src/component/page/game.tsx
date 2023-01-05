@@ -6,6 +6,7 @@ export const Game = () => {
   const { gameId } = useParams();
   const [hexes, setHexes] = useState<JSX.Element[]>();
   const [chits, setChits] = useState<JSX.Element[]>();
+  const [harbor, setHarbors] = useState<JSX.Element[]>();
 
   useEffect(() => {
     fetch(import.meta.env.VITE_API_URL + "/game", {
@@ -20,6 +21,7 @@ export const Game = () => {
             GameEntity: Entity.GameEntityType[];
             TerrainEntity: Entity.TerrainEntityType[];
             ChitEntity: Entity.ChitEntityType[];
+            HarborEntity: Entity.HarborEntityType[];
           };
           users: Entity.UserEntityType[];
         };
@@ -49,6 +51,7 @@ export const Game = () => {
         ]);
 
         setChits(data.gameCollection.ChitEntity.map(mapChit));
+        setHarbors(data.gameCollection.HarborEntity.map(mapHarbor));
       });
   }, []);
 
@@ -58,6 +61,7 @@ export const Game = () => {
         <g transform="translate(10, 10)">
           {hexes}
           {chits}
+          {harbor}
         </g>
       </svg>
     </div>
@@ -81,6 +85,20 @@ const translate = (c: Coords) => {
   };
 };
 
+const mapHarbor = (e: Entity.HarborEntityType) => {
+  const { x, y } = translate(e);
+  return (
+    <g transform={`translate(${x}, ${y})`} key={`x${x}y${y}`}>
+      <polygon
+        stroke="#000000"
+        strokeWidth="0.5"
+        style={{ fill: resourceColor(e.resource) }}
+        points="4,-4 -4,-4 -4,4 4,4"
+      />
+    </g>
+  );
+};
+
 const mapChit = (e: Entity.ChitEntityType) => {
   const { x, y } = translate(e);
   return (
@@ -100,27 +118,34 @@ const mapHex = (e: { x: number; y: number; terrain?: string }) => {
       <polygon
         stroke="#000000"
         strokeWidth="0.5"
-        style={{ fill: terrainColor(e.terrain) }}
+        style={{ fill: resourceColor(e.terrain) }}
         points="5,-9 -5,-9 -10,0 -5,9 5,9 10,0"
       />
     </g>
   );
 };
 
-const terrainColor = (t?: string) => {
+const resourceColor = (t?: string) => {
   switch (t) {
     case "fields":
+    case "grain":
       return "wheat";
     case "pasture":
+    case "wool":
       return "springgreen";
     case "desert":
       return "sandybrown";
     case "hills":
+    case "brick":
       return "firebrick";
     case "forest":
+    case "lumber":
       return "forestgreen";
     case "mountains":
+    case "ore":
       return "slategray";
+    case "any":
+      return "white";
     default:
       return "blue";
   }
