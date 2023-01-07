@@ -3,7 +3,7 @@ import { z } from "zod";
 import { OptionSchema } from "./common";
 
 export interface CommandCtx {
-  commandOptions: OptionSchema[][];
+  flatOptions: OptionSchema[][];
   game: GameEntityType | undefined;
   userId: string;
   env: {

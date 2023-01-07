@@ -45,27 +45,31 @@ export const handler: Handler<
       }
 
       case 2: {
-        const commandOptions = getFlatOptions(parsedBody.data);
-        console.log(commandOptions);
+        const flatOptions = getFlatOptions(parsedBody.data);
+        const commandName = flatOptions[0][0].name;
 
-        await sqs
-          .sendMessage({
-            QueueUrl: parsedEnv.ONBOARD_QUEUE,
-            MessageBody: JSON.stringify(body.member.user),
-          })
-          .promise();
+        const [_, run] = await Promise.all([
+          sqs
+            .sendMessage({
+              QueueUrl: parsedEnv.ONBOARD_QUEUE,
+              MessageBody: JSON.stringify(body.member.user),
+            })
+            .promise(),
 
-        return await runner(commands, commandOptions[0][0].name, body, {
-          commandOptions,
-          game: await model.entities.GameEntity.query
-            .channel({ channelId: parsedBody.channel_id })
-            .where(({ winner }, { notExists }) => notExists(winner))
-            .go()
-            .then(({ data }) => data[0]),
-          userId: parsedBody.member.user.id,
-          env: parsedEnv,
-          channelId: parsedBody.channel_id,
-        });
+          runner(commands, commandName, body, {
+            flatOptions,
+            game: await model.entities.GameEntity.query
+              .channel({ channelId: parsedBody.channel_id })
+              .where(({ winner }, { notExists }) => notExists(winner))
+              .go()
+              .then(({ data }) => data[0]),
+            userId: parsedBody.member.user.id,
+            env: parsedEnv,
+            channelId: parsedBody.channel_id,
+          }),
+        ]);
+
+        return run;
       }
 
       default: {
