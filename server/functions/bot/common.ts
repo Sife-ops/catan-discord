@@ -86,6 +86,7 @@ export const getFlatOptions = (data: DataSchema): OptionSchema[][] => {
       break;
     }
   }
+
   return cmds;
 };
 

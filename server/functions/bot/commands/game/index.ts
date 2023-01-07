@@ -3,7 +3,6 @@ import { genericResponse } from "@catan-discord/bot/common";
 import { runner, Command } from "@catan-discord/bot/runner";
 
 export const game: Command = {
-  schema: undefined,
   handler: async (body, ctx) => {
     const subcommandName = ctx.flatOptions[1][0].name;
 

@@ -8,7 +8,6 @@ import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
 
 export const create: Command = {
-  schema: undefined,
   handler: async (body, { userId, game, channelId }) => {
     /**
      * 1) one game per channel

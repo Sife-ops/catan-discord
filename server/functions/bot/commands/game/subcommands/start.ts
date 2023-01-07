@@ -4,7 +4,6 @@ import { genericResponse } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const start: Command = {
-  schema: undefined,
   handler: async (_, { game, channelId, env: { WEB_URL } }) => {
     /**
      * 1) count players

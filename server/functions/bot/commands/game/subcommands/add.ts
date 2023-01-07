@@ -1,9 +1,7 @@
 import {
   genericResponse,
-  getNestedOptions,
   getOptionValue,
   getResolvedUser,
-  optionSchema,
   usersSchema,
 } from "@catan-discord/bot/common";
 
@@ -16,7 +14,6 @@ const sqs = new AWS.SQS();
 
 const schema = z.object({
   data: z.object({
-    options: z.array(optionSchema),
     resolved: z.object({
       users: usersSchema,
     }),
@@ -27,10 +24,7 @@ type Schema = z.infer<typeof schema>;
 export const add: Command = {
   schema,
   handler: async (body: Schema, ctx) => {
-    const userId = getOptionValue(
-      getNestedOptions(body.data.options, "add"),
-      "player"
-    );
+    const userId = getOptionValue(ctx.flatOptions[2], "player");
 
     if (!ctx.game) throw new Error("missing game");
     const player = await model.entities.PlayerEntity.query
@@ -44,19 +38,21 @@ export const add: Command = {
       return genericResponse("already added");
     }
 
-    await sqs
-      .sendMessage({
-        QueueUrl: ctx.env.ONBOARD_QUEUE,
-        MessageBody: JSON.stringify(
-          getResolvedUser(body.data.resolved.users, userId)
-        ),
-      })
-      .promise();
+    await Promise.all([
+      sqs
+        .sendMessage({
+          QueueUrl: ctx.env.ONBOARD_QUEUE,
+          MessageBody: JSON.stringify(
+            getResolvedUser(body.data.resolved.users, userId)
+          ),
+        })
+        .promise(),
 
-    await model.entities.PlayerEntity.create({
-      gameId: ctx.game.gameId,
-      userId,
-    }).go();
+      model.entities.PlayerEntity.create({
+        gameId: ctx.game.gameId,
+        userId,
+      }).go(),
+    ]);
 
     return genericResponse("added player");
   },

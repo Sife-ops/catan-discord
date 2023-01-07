@@ -17,7 +17,7 @@ export interface CommandCtx {
 export type CommandHandler = (body: any, ctx: CommandCtx) => Promise<any>;
 
 export interface Command {
-  schema: z.AnyZodObject | undefined;
+  schema?: z.AnyZodObject | undefined;
   handler: CommandHandler;
 }
 

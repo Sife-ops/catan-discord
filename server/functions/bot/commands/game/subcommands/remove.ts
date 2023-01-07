@@ -1,6 +1,5 @@
 import {
   getOptionValue,
-  getNestedOptions,
   genericResponse,
 } from "@catan-discord/bot/common";
 
@@ -8,12 +7,8 @@ import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
 
 export const remove: Command = {
-  schema: undefined,
-  handler: async (body, ctx) => {
-    const userId = getOptionValue(
-      getNestedOptions(body.data.options, "remove"),
-      "player"
-    );
+  handler: async (_, ctx) => {
+    const userId = getOptionValue(ctx.flatOptions[2], "player");
 
     if (userId === ctx.userId) {
       return genericResponse("cannot remove organizer");
