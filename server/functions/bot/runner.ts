@@ -2,6 +2,7 @@ import { GameEntityType } from "@catan-discord/core/entity/game";
 import { z } from "zod";
 
 export interface CommandCtx {
+  commandNames: string[];
   game: GameEntityType | undefined;
   userId: string;
   env: {

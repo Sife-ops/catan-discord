@@ -1,19 +1,11 @@
 import * as subcommands from "./subcommands";
-import { optionSchema, genericResponse } from "@catan-discord/bot/common";
+import { genericResponse } from "@catan-discord/bot/common";
 import { runner, Command } from "@catan-discord/bot/runner";
-import { z } from "zod";
-
-const schema = z.object({
-  data: z.object({
-    options: z.array(optionSchema),
-  }),
-});
-type Schema = z.infer<typeof schema>;
 
 export const game: Command = {
-  schema,
-  handler: async (body: Schema, ctx) => {
-    const subcommandName = body.data.options[0].name;
+  schema: undefined,
+  handler: async (body, ctx) => {
+    const subcommandName = ctx.commandNames[1];
 
     if (["add", "remove", "start", "cancel"].includes(subcommandName)) {
       if (!ctx.game) {

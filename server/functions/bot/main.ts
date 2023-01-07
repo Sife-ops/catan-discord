@@ -7,30 +7,13 @@ import {
 import * as commands from "./commands";
 import AWS from "aws-sdk";
 import nacl from "tweetnacl";
-import { memberSchema, envSchema } from "./common";
+import { envSchema, eventSchema, bodySchema, getCommandNames } from "./common";
 import { model } from "@catan-discord/core/model";
 import { runner } from "@catan-discord/bot/runner";
 import { z } from "zod";
 
 // todo: add to ctx?
 const sqs = new AWS.SQS();
-
-const eventSchema = z.object({
-  body: z.string(),
-  headers: z.object({
-    "x-signature-ed25519": z.string(),
-    "x-signature-timestamp": z.string(),
-  }),
-});
-
-const bodySchema = z.object({
-  channel_id: z.string(),
-  data: z.object({
-    name: z.string(),
-  }),
-  member: memberSchema,
-  type: z.number(),
-});
 
 export const handler: Handler<
   APIGatewayProxyEventV2,
@@ -63,6 +46,9 @@ export const handler: Handler<
       }
 
       case 2: {
+        const commandNames = getCommandNames(parsedBody.data);
+        console.log(commandNames);
+
         await sqs
           .sendMessage({
             QueueUrl: parsedEnv.ONBOARD_QUEUE,
@@ -70,7 +56,8 @@ export const handler: Handler<
           })
           .promise();
 
-        return await runner(commands, parsedBody.data.name, body, {
+        return await runner(commands, commandNames[0], body, {
+          commandNames,
           game: await model.entities.GameEntity.query
             .channel({ channelId: parsedBody.channel_id })
             .where(({ winner }, { notExists }) => notExists(winner))
