@@ -1,8 +1,9 @@
 import { GameEntityType } from "@catan-discord/core/entity/game";
 import { z } from "zod";
+import { OptionSchema } from "./common";
 
 export interface CommandCtx {
-  commandNames: string[];
+  commandOptions: OptionSchema[][];
   game: GameEntityType | undefined;
   userId: string;
   env: {

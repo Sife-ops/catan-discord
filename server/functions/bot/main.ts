@@ -7,10 +7,9 @@ import {
 import * as commands from "./commands";
 import AWS from "aws-sdk";
 import nacl from "tweetnacl";
-import { envSchema, eventSchema, bodySchema, getCommandNames } from "./common";
+import { envSchema, eventSchema, bodySchema, getFlatOptions } from "./common";
 import { model } from "@catan-discord/core/model";
 import { runner } from "@catan-discord/bot/runner";
-import { z } from "zod";
 
 // todo: add to ctx?
 const sqs = new AWS.SQS();
@@ -46,8 +45,8 @@ export const handler: Handler<
       }
 
       case 2: {
-        const commandNames = getCommandNames(parsedBody.data);
-        console.log(commandNames);
+        const commandOptions = getFlatOptions(parsedBody.data);
+        console.log(commandOptions);
 
         await sqs
           .sendMessage({
@@ -56,8 +55,8 @@ export const handler: Handler<
           })
           .promise();
 
-        return await runner(commands, commandNames[0], body, {
-          commandNames,
+        return await runner(commands, commandOptions[0][0].name, body, {
+          commandOptions,
           game: await model.entities.GameEntity.query
             .channel({ channelId: parsedBody.channel_id })
             .where(({ winner }, { notExists }) => notExists(winner))

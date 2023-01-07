@@ -30,7 +30,7 @@ export const optionSchema = z.object({
   value: z.string().optional(),
   options: z.array(z.any()).optional(),
 });
-type OptionSchema = z.infer<typeof optionSchema>;
+export type OptionSchema = z.infer<typeof optionSchema>;
 
 export const usersSchema = z.record(
   z.object({
@@ -45,6 +45,7 @@ type UsersSchema = z.infer<typeof usersSchema>;
 export const dataSchema = z.object({
   name: z.string(),
   options: z.array(optionSchema),
+  type: z.number(),
 });
 type DataSchema = z.infer<typeof dataSchema>;
 
@@ -59,18 +60,28 @@ export const bodySchema = z.object({
  * functions
  */
 
-export const getCommandNames = (data: DataSchema): string[] => {
-  let cmds: string[] = [data.name];
+export const getFlatOptions = (data: DataSchema): OptionSchema[][] => {
+  let cmds: OptionSchema[][] = [
+    [
+      {
+        name: data.name,
+        options: data.options,
+        type: data.type,
+      },
+    ],
+  ];
+
   let options = data.options;
   while (true) {
     if (options && options.length > 0) {
       const firstOption = optionSchema.parse(options[0]);
       if (firstOption.options) {
-        cmds = [...cmds, firstOption.name];
+        cmds = [...cmds, [firstOption]];
         options = firstOption.options;
-        continue;
+      } else {
+        cmds = [...cmds, options];
+        break;
       }
-      break;
     } else {
       break;
     }
