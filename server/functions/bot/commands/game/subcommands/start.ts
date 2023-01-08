@@ -205,13 +205,11 @@ export const start: Command = {
             .sort((a, b) => a.roll - b.roll)
         )
         .then((data) =>
-          data.map((player, i) => {
+          data.map((player, i) =>
             model.entities.PlayerEntity.update(player)
-              .set({
-                playerIndex: i,
-              })
-              .go();
-          })
+              .set({ playerIndex: i })
+              .go()
+          )
         )
     );
 

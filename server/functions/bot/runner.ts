@@ -1,17 +1,27 @@
-import { GameEntityType } from "@catan-discord/core/entity/game";
+import * as Entity from "@catan-discord/core/entity";
 import { z } from "zod";
 import { OptionSchema } from "./common";
 
 export interface CommandCtx {
-  flatOptions: OptionSchema[][];
-  game: GameEntityType | undefined;
-  userId: string;
+  channelId: string;
   env: {
     PUBLIC_KEY: string;
     ONBOARD_QUEUE: string;
     WEB_URL: string;
   };
-  channelId: string;
+  flatOptions: OptionSchema[][];
+  game: Entity.GameEntityType | undefined;
+  gameCollection:
+    | {
+        BuildingEntity: Entity.BuildingEntityType[];
+        ChitEntity: Entity.ChitEntityType[];
+        HarborEntity: Entity.HarborEntityType[];
+        PlayerEntity: Entity.PlayerEntityType[];
+        RoadEntity: Entity.RoadEntityType[];
+        TerrainEntity: Entity.TerrainEntityType[];
+      }
+    | undefined;
+  userId: string;
 }
 
 export type CommandHandler = (body: any, ctx: CommandCtx) => Promise<any>;

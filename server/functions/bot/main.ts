@@ -48,6 +48,19 @@ export const handler: Handler<
         const flatOptions = getFlatOptions(parsedBody.data);
         const commandName = flatOptions[0][0].name;
 
+        const game = await model.entities.GameEntity.query
+          .channel({ channelId: parsedBody.channel_id })
+          .where(({ winner }, { notExists }) => notExists(winner))
+          .go()
+          .then(({ data }) => data[0]);
+
+        const gameCollection = game
+          ? await model.collections
+              .game({ gameId: game.gameId })
+              .go()
+              .then((e) => e.data)
+          : undefined;
+
         const [_, run] = await Promise.all([
           sqs
             .sendMessage({
@@ -57,15 +70,12 @@ export const handler: Handler<
             .promise(),
 
           runner(commands, commandName, body, {
-            flatOptions,
-            game: await model.entities.GameEntity.query
-              .channel({ channelId: parsedBody.channel_id })
-              .where(({ winner }, { notExists }) => notExists(winner))
-              .go()
-              .then(({ data }) => data[0]),
-            userId: parsedBody.member.user.id,
-            env: parsedEnv,
             channelId: parsedBody.channel_id,
+            env: parsedEnv,
+            flatOptions,
+            game: gameCollection?.GameEntity[0],
+            gameCollection,
+            userId: parsedBody.member.user.id,
           }),
         ]);
 
