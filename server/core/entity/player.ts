@@ -72,6 +72,12 @@ export const PlayerEntity = new Entity(
         type: "string",
         required: true,
       },
+
+      playerIndex: {
+        type: "number",
+        required: true,
+        default: 0,
+      },
     },
 
     model: {

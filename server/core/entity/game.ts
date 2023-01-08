@@ -75,6 +75,18 @@ export const GameEntity = new Entity(
         type: "string",
         required: false,
       },
+
+      round: {
+        type: "number",
+        required: true,
+        default: 0,
+      },
+
+      playerIndex: {
+        type: "number",
+        required: true,
+        default: 0,
+      },
     },
 
     model: {

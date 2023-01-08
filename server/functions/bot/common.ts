@@ -60,6 +60,14 @@ export const bodySchema = z.object({
  * functions
  */
 
+export const rollOne = (): number => {
+  return [1, 2, 3, 4, 5, 6][Math.floor(Math.random() * 6)];
+};
+
+export const rollTwo = (): number => {
+  return rollOne() + rollOne();
+};
+
 export const getFlatOptions = (data: DataSchema): OptionSchema[][] => {
   let cmds: OptionSchema[][] = [
     [

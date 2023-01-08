@@ -1,6 +1,6 @@
 import { Command } from "@catan-discord/bot/runner";
 import { TerrainEntityType } from "@catan-discord/core/entity";
-import { genericResponse } from "@catan-discord/bot/common";
+import { genericResponse, rollTwo } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const start: Command = {
@@ -14,6 +14,7 @@ export const start: Command = {
      *   2d) harbors
      * 3) create entities
      * 4) start game
+     * 5) player order
      */
 
     // 1) count players
@@ -187,6 +188,32 @@ export const start: Command = {
         .set({ started: true })
         .go(),
     ]);
+
+    // 5) player order
+    await Promise.all(
+      await model.entities.PlayerEntity.query
+        .game_({
+          gameId: game.gameId,
+        })
+        .go()
+        .then(({ data }) =>
+          data
+            .map((player) => ({
+              ...player,
+              roll: rollTwo(),
+            }))
+            .sort((a, b) => a.roll - b.roll)
+        )
+        .then((data) =>
+          data.map((player, i) => {
+            model.entities.PlayerEntity.update(player)
+              .set({
+                playerIndex: i,
+              })
+              .go();
+          })
+        )
+    );
 
     return {
       type: 4,
