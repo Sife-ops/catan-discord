@@ -3,11 +3,10 @@ import { genericResponse } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const cancel: Command = {
-  handler: async (_, { game, channelId }) => {
-    if (!game) throw new Error("missing game");
+  handler: async (_, c) => {
     await model.entities.GameEntity.update({
-      channelId,
-      gameId: game.gameId,
+      channelId: c.channelId,
+      gameId: c.getGame().gameId,
     })
       .set({ winner: "none" })
       .go();

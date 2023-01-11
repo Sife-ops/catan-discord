@@ -7,13 +7,13 @@ export const game: Command = {
     const subcommandName = ctx.flatOptions[1][0].name;
 
     if (["add", "remove", "start", "cancel"].includes(subcommandName)) {
-      if (!ctx.game) {
+      if (!ctx.hasGame()) {
         return genericResponse("game does not exist");
-      } else if (ctx.game.userId !== ctx.userId) {
+      } else if (ctx.getGame().userId !== ctx.userId) {
         return genericResponse("you are not the organizer");
       } else if (
         ["add", "remove", "start"].includes(subcommandName) &&
-        ctx.game.started
+        ctx.getGame().started
       ) {
         return genericResponse("game already started");
       }

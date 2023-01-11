@@ -9,7 +9,7 @@ import AWS from "aws-sdk";
 import nacl from "tweetnacl";
 import { envSchema, eventSchema, bodySchema, getFlatOptions } from "./common";
 import { model } from "@catan-discord/core/model";
-import { runner } from "@catan-discord/bot/runner";
+import { runner, Ctx } from "@catan-discord/bot/runner";
 
 // todo: add to ctx?
 const sqs = new AWS.SQS();
@@ -52,7 +52,7 @@ export const handler: Handler<
           .channel({ channelId: parsedBody.channel_id })
           .where(({ winner }, { notExists }) => notExists(winner))
           .go()
-          .then(({ data }) => data[0]);
+          .then(({ data }) => (!!data[0] ? data[0] : undefined));
 
         const gameCollection = game
           ? await model.collections
@@ -69,14 +69,18 @@ export const handler: Handler<
             })
             .promise(),
 
-          runner(commands, commandName, body, {
-            channelId: parsedBody.channel_id,
-            env: parsedEnv,
-            flatOptions,
-            game: gameCollection?.GameEntity[0],
-            gameCollection,
-            userId: parsedBody.member.user.id,
-          }),
+          runner(
+            commands,
+            commandName,
+            body,
+            new Ctx({
+              channelId: parsedBody.channel_id,
+              env: parsedEnv,
+              flatOptions,
+              gameCollection,
+              userId: parsedBody.member.user.id,
+            })
+          ),
         ]);
 
         return run;

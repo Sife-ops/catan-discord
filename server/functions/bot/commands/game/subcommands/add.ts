@@ -24,14 +24,11 @@ type Schema = z.infer<typeof schema>;
 export const add: Command = {
   schema,
   handler: async (body: Schema, ctx) => {
+    const { gameId } = ctx.getGame();
     const userId = getOptionValue(ctx.flatOptions[2], "player");
 
-    if (!ctx.game) throw new Error("missing game");
     const player = await model.entities.PlayerEntity.query
-      .game_({
-        gameId: ctx.game.gameId,
-        userId,
-      })
+      .game_({ gameId, userId })
       .go()
       .then(({ data }) => data[0]);
     if (player) {
@@ -48,10 +45,7 @@ export const add: Command = {
         })
         .promise(),
 
-      model.entities.PlayerEntity.create({
-        gameId: ctx.game.gameId,
-        userId,
-      }).go(),
+      model.entities.PlayerEntity.create({ gameId, userId }).go(),
     ]);
 
     return genericResponse("added player");

@@ -4,14 +4,18 @@ import { genericResponse, rollTwo } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const start: Command = {
-  handler: async (_, { game, channelId, env: { WEB_URL } }) => {
+  handler: async (_, ctx) => {
+    const { gameId } = ctx.getGame();
+    const flatMap = ctx.getFlatMap();
+    const channelId = ctx.channelId;
+    const WEB_URL = ctx.env.WEB_URL;
+
     /**
      * 1) count players
      * 2) initialize game
-     *   2a) parse map data
-     *   2b) resources
-     *   2c) chits
-     *   2d) harbors
+     *   2a) resources
+     *   2b) chits
+     *   2c) harbors
      * 3) create entities
      * 4) start game
      * 5) player order
@@ -20,9 +24,8 @@ export const start: Command = {
     // todo: robber
 
     // 1) count players
-    if (!game) throw new Error("missing game");
     const playerCount = await model.entities.PlayerEntity.query
-      .game_({ gameId: game.gameId })
+      .game_({ gameId })
       .go()
       .then(({ data }) => data.length);
 
@@ -33,20 +36,6 @@ export const start: Command = {
     // todo: "too many players" condition
 
     // 2) initialize game
-    // 2a) parse map data
-    const map = JSON.parse(game.map) as { type: string }[][];
-    const flatMap = map
-      .map((row, iRow) =>
-        row.map((col, iCol) => ({
-          ...col,
-          x: iCol,
-          y: iRow,
-        }))
-      )
-      .reduce((a, c) => {
-        return [...a, ...c];
-      }, []);
-
     const terrains = flatMap.filter((e) => e.type === "terrain");
     const harbors = flatMap.filter((e) => e.type === "harbor");
 
@@ -54,7 +43,7 @@ export const start: Command = {
      * todo: everything after this is not very dry, too many constants
      */
 
-    // 2b) resources
+    // 2a) resources
     const nDeserts = Math.floor(terrains.length / 19);
     const nNonDeserts = terrains.length - nDeserts;
     const nAbundantResource = Math.floor((nNonDeserts * 2) / 9);
@@ -86,7 +75,7 @@ export const start: Command = {
     const resourceChooser = randomNoRepeat<string>(resourceValues);
     const resources = terrains.map(
       ({ x, y }): TerrainEntityType => ({
-        gameId: game.gameId,
+        gameId,
         // @ts-ignore
         terrain: resourceChooser(),
         x,
@@ -94,7 +83,7 @@ export const start: Command = {
       })
     );
 
-    // 2c) chits
+    // 2b) chits
     const nRareChit = nNonDeserts / 18;
     const nCommonChit = nNonDeserts / 9;
 
@@ -127,7 +116,7 @@ export const start: Command = {
 
     const chitChooser = randomNoRepeat<number>(chitValues);
 
-    // 2d) harbors
+    // 2c) harbors
     const nHarbor = harbors.length;
     const nSpecificHarbor = Math.floor(nHarbor / 9);
     const nAnyHarbor = Math.floor((nHarbor * 4) / 9);
@@ -164,7 +153,7 @@ export const start: Command = {
         .filter((e) => e.terrain !== "desert")
         .map(({ x, y }) =>
           model.entities.ChitEntity.create({
-            gameId: game.gameId,
+            gameId,
             value: chitChooser(),
             x,
             y,
@@ -173,7 +162,7 @@ export const start: Command = {
       ...harbors.map(({ x, y }) => {
         const chosen = harborChooser();
         return model.entities.HarborEntity.create({
-          gameId: game.gameId,
+          gameId,
           // @ts-ignore
           resource: chosen,
           ratio: chosen === "any" ? "3:1" : "2:1",
@@ -185,7 +174,7 @@ export const start: Command = {
       // 4) start game
       model.entities.GameEntity.update({
         channelId,
-        gameId: game.gameId,
+        gameId,
       })
         .set({ started: true })
         .go(),
@@ -194,9 +183,7 @@ export const start: Command = {
     // 5) player order
     await Promise.all(
       await model.entities.PlayerEntity.query
-        .game_({
-          gameId: game.gameId,
-        })
+        .game_({ gameId })
         .go()
         .then(({ data }) =>
           data
@@ -222,7 +209,7 @@ export const start: Command = {
         embeds: [
           {
             title: "game url",
-            url: `https://${WEB_URL}/game/${game.gameId}`,
+            url: `https://${WEB_URL}/game/${gameId}`,
             color: 0xff0000,
           },
         ],

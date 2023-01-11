@@ -1,7 +1,4 @@
-import {
-  getOptionValue,
-  genericResponse,
-} from "@catan-discord/bot/common";
+import { getOptionValue, genericResponse } from "@catan-discord/bot/common";
 
 import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
@@ -14,10 +11,9 @@ export const remove: Command = {
       return genericResponse("cannot remove organizer");
     }
 
-    if (!ctx.game) throw new Error("missing game");
     const playerId = await model.entities.PlayerEntity.query
       .game_({
-        gameId: ctx.game.gameId,
+        gameId: ctx.getGame().gameId,
         userId,
       })
       .go()

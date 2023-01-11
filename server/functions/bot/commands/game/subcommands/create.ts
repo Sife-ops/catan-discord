@@ -8,7 +8,7 @@ import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
 
 export const create: Command = {
-  handler: async (body, { userId, game, channelId }) => {
+  handler: async (body, c) => {
     /**
      * 1) one game per channel
      * 2) map must exist
@@ -16,7 +16,7 @@ export const create: Command = {
      */
 
     // 1) one game per channel
-    if (game) {
+    if (c.hasGame()) {
       return genericResponse("game already exists");
     }
 
@@ -37,14 +37,14 @@ export const create: Command = {
 
     // 3) create game
     const gameMutation = await model.entities.GameEntity.create({
-      channelId,
+      channelId: c.channelId,
       map,
-      userId,
+      userId: c.userId,
     }).go();
 
     await model.entities.PlayerEntity.create({
       gameId: gameMutation.data.gameId,
-      userId,
+      userId: c.userId,
     }).go();
 
     return genericResponse("game created");
