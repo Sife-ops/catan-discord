@@ -17,6 +17,8 @@ export const start: Command = {
      * 5) player order
      */
 
+    // todo: robber
+
     // 1) count players
     if (!game) throw new Error("missing game");
     const playerCount = await model.entities.PlayerEntity.query
