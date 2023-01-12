@@ -3,10 +3,10 @@ import { genericResponse } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const cancel: Command = {
-  handler: async (_, c) => {
+  handler: async (ctx) => {
     await model.entities.GameEntity.update({
-      channelId: c.channelId,
-      gameId: c.getGame().gameId,
+      channelId: ctx.channelId,
+      gameId: ctx.getGame().gameId,
     })
       .set({ winner: "none" })
       .go();

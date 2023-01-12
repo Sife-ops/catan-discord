@@ -8,7 +8,10 @@ import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
 
 export const create: Command = {
-  handler: async (body, c) => {
+  handler: async (ctx) => {
+    const userId = ctx.userId;
+    const channelId = ctx.channelId;
+
     /**
      * 1) one game per channel
      * 2) map must exist
@@ -16,13 +19,13 @@ export const create: Command = {
      */
 
     // 1) one game per channel
-    if (c.hasGame()) {
+    if (ctx.hasGame()) {
       return genericResponse("game already exists");
     }
 
     // 2) map must exist
     const mapId = getOptionValue(
-      getNestedOptions(body.data.options, "create"),
+      getNestedOptions(ctx.body.data.options, "create"),
       "map"
     );
 
@@ -37,14 +40,14 @@ export const create: Command = {
 
     // 3) create game
     const gameMutation = await model.entities.GameEntity.create({
-      channelId: c.channelId,
+      channelId,
       map,
-      userId: c.userId,
+      userId,
     }).go();
 
     await model.entities.PlayerEntity.create({
       gameId: gameMutation.data.gameId,
-      userId: c.userId,
+      userId,
     }).go();
 
     return genericResponse("game created");

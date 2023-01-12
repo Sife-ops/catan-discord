@@ -4,7 +4,7 @@ import { Command } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
 
 export const remove: Command = {
-  handler: async (_, ctx) => {
+  handler: async (ctx) => {
     const userId = getOptionValue(ctx.flatOptions[2], "player");
 
     if (userId === ctx.userId) {

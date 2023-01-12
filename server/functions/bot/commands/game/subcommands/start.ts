@@ -4,7 +4,7 @@ import { genericResponse, rollTwo } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const start: Command = {
-  handler: async (_, ctx) => {
+  handler: async (ctx) => {
     const { gameId } = ctx.getGame();
     const flatMap = ctx.getFlatMap();
     const channelId = ctx.channelId;

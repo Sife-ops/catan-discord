@@ -23,7 +23,8 @@ type Schema = z.infer<typeof schema>;
 
 export const add: Command = {
   schema,
-  handler: async (body: Schema, ctx) => {
+  handler: async (ctx) => {
+    const body: Schema = ctx.body;
     const { gameId } = ctx.getGame();
     const userId = getOptionValue(ctx.flatOptions[2], "player");
 

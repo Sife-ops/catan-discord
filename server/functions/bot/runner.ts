@@ -1,8 +1,9 @@
-import * as Entity from "@catan-discord/core/entity";
-import { z } from "zod";
+import { GameCollection } from "@catan-discord/core/model";
 import { OptionSchema } from "./common";
+import { z } from "zod";
 
 export interface CtxCfg {
+  body: any;
   channelId: string;
   env: {
     PUBLIC_KEY: string;
@@ -10,22 +11,13 @@ export interface CtxCfg {
     WEB_URL: string;
   };
   flatOptions: OptionSchema[][];
-  gameCollection:
-    | {
-        BuildingEntity: Entity.BuildingEntityType[];
-        ChitEntity: Entity.ChitEntityType[];
-        GameEntity: Entity.GameEntityType[];
-        HarborEntity: Entity.HarborEntityType[];
-        PlayerEntity: Entity.PlayerEntityType[];
-        RoadEntity: Entity.RoadEntityType[];
-        TerrainEntity: Entity.TerrainEntityType[];
-      }
-    | undefined;
+  gameCollection: GameCollection | undefined;
   userId: string;
 }
 
 export class Ctx {
   private ctxCfg;
+  body;
   channelId;
   env;
   flatOptions;
@@ -33,16 +25,15 @@ export class Ctx {
 
   constructor(c: CtxCfg) {
     this.ctxCfg = c;
+    this.body = c.body;
     this.channelId = c.channelId;
     this.env = c.env;
     this.flatOptions = c.flatOptions;
     this.userId = c.userId;
   }
 
-  private missingGameCollectionErr = Error("missing gameCollection");
-
   getGameCollection() {
-    if (!this.ctxCfg.gameCollection) throw this.missingGameCollectionErr;
+    if (!this.ctxCfg.gameCollection) throw new Error("missing gameCollection");
     return this.ctxCfg.gameCollection;
   }
 
@@ -74,7 +65,7 @@ export class Ctx {
   }
 }
 
-export type CommandHandler = (body: any, ctx: Ctx) => Promise<any>;
+export type CommandHandler = (ctx: Ctx) => Promise<any>;
 
 export interface Command {
   schema?: z.AnyZodObject | undefined;
@@ -84,14 +75,13 @@ export interface Command {
 export const runner = async (
   commands: Record<string, Command>,
   commandName: string,
-  body: any,
   ctx: Ctx
 ) => {
   const command = commands[commandName];
 
   if (command.schema) {
-    command.schema.parse(body);
+    command.schema.parse(ctx.body);
   }
 
-  return command.handler(body, ctx);
+  return command.handler(ctx);
 };

@@ -68,6 +68,7 @@ export const rollTwo = (): number => {
   return rollOne() + rollOne();
 };
 
+// todo: array.reduce
 export const getFlatOptions = (data: DataSchema): OptionSchema[][] => {
   let cmds: OptionSchema[][] = [
     [
