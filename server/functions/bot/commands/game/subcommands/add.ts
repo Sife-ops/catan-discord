@@ -1,6 +1,5 @@
 import {
   genericResponse,
-  getOptionValue,
   getResolvedUser,
   usersSchema,
 } from "@catan-discord/bot/common";
@@ -26,7 +25,7 @@ export const add: Command = {
   handler: async (ctx) => {
     const body: Schema = ctx.body;
     const { gameId } = ctx.getGame();
-    const userId = getOptionValue(ctx.flatOptions[2], "player");
+    const userId = ctx.getOptionValue("player");
 
     const player = await model.entities.PlayerEntity.query
       .game_({ gameId, userId })

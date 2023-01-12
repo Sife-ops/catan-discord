@@ -68,37 +68,6 @@ export const rollTwo = (): number => {
   return rollOne() + rollOne();
 };
 
-// todo: array.reduce
-export const getFlatOptions = (data: DataSchema): OptionSchema[][] => {
-  let cmds: OptionSchema[][] = [
-    [
-      {
-        name: data.name,
-        options: data.options,
-        type: data.type,
-      },
-    ],
-  ];
-
-  let options = data.options;
-  while (true) {
-    if (options && options.length > 0) {
-      const firstOption = optionSchema.parse(options[0]);
-      if (firstOption.options) {
-        cmds = [...cmds, [firstOption]];
-        options = firstOption.options;
-      } else {
-        cmds = [...cmds, options];
-        break;
-      }
-    } else {
-      break;
-    }
-  }
-
-  return cmds;
-};
-
 export const genericResponse = (content: string) => {
   return {
     type: 4,
@@ -113,22 +82,4 @@ export const getResolvedUser = (users: UsersSchema, userId: string) => {
   const user = users[userId];
   if (!user) throw new Error("missing user");
   return user;
-};
-
-export const getNestedOptions = (
-  options: Array<OptionSchema & { options?: OptionSchema[] }>,
-  optionName: string
-): OptionSchema[] => {
-  const option = options.find((e) => e.name === optionName);
-  if (!option || !option.options) throw new Error("missing option");
-  return option.options;
-};
-
-export const getOptionValue = (
-  options: OptionSchema[],
-  optionName: string
-): string => {
-  const option = options.find((e) => e.name === optionName);
-  if (!option || !option.value) throw new Error("missing option");
-  return option.value;
 };

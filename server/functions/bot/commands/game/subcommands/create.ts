@@ -1,10 +1,5 @@
-import {
-  getOptionValue,
-  getNestedOptions,
-  genericResponse,
-} from "@catan-discord/bot/common";
-
 import { Command } from "@catan-discord/bot/runner";
+import { genericResponse } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const create: Command = {
@@ -24,13 +19,8 @@ export const create: Command = {
     }
 
     // 2) map must exist
-    const mapId = getOptionValue(
-      getNestedOptions(ctx.body.data.options, "create"),
-      "map"
-    );
-
     const map = await model.entities.MapEntity.query
-      .map({ mapId })
+      .map({ mapId: ctx.getOptionValue("map") })
       .go()
       .then(({ data }) => data[0]?.data);
 

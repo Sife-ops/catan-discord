@@ -3,8 +3,8 @@ import { runner, Command } from "@catan-discord/bot/runner";
 
 export const build: Command = {
   handler: async (ctx) => {
-    const subcommandName = ctx.flatOptions[1][0].name;
+    // const subcommandName = ctx.getFlatOptions()[1][0].name;
 
-    return await runner(subcommands, subcommandName, ctx);
+    return await runner(subcommands, ctx.getFlatOptions()[1][0].name, ctx);
   },
 };
