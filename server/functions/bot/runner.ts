@@ -55,6 +55,10 @@ export class Ctx {
     ];
   }
 
+  getCommandName(index: number) {
+    return this.getFlatOptions()[index][0].name;
+  }
+
   getOptionValue(optionName: string) {
     const flatOptions = this.getFlatOptions();
     const value = flatOptions[flatOptions.length - 1].find(

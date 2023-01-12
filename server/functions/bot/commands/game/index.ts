@@ -4,7 +4,7 @@ import { runner, Command } from "@catan-discord/bot/runner";
 
 export const game: Command = {
   handler: async (ctx) => {
-    const subcommandName = ctx.getFlatOptions()[1][0].name;
+    const subcommandName = ctx.getCommandName(1);
 
     if (["add", "remove", "start", "cancel"].includes(subcommandName)) {
       if (!ctx.hasGame()) {
