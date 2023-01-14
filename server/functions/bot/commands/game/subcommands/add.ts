@@ -25,7 +25,7 @@ export const add: Command = {
   handler: async (ctx) => {
     const body: Schema = ctx.body;
     const { gameId } = ctx.getGame();
-    const userId = ctx.getOptionValue("player");
+    const userId = ctx.getOptionValue("player") as string;
 
     const player = await model.entities.PlayerEntity.query
       .game_({ gameId, userId })

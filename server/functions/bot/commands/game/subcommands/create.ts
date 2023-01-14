@@ -20,7 +20,7 @@ export const create: Command = {
 
     // 2) map must exist
     const map = await model.entities.MapEntity.query
-      .map({ mapId: ctx.getOptionValue("map") })
+      .map({ mapId: ctx.getOptionValue("map") as string })
       .go()
       .then(({ data }) => data[0]?.data);
 

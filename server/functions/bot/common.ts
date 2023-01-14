@@ -1,5 +1,26 @@
 import { z } from "zod";
 
+export interface Coords {
+  x: number;
+  y: number;
+}
+
+export const compareXY = (a: Coords, b: Coords) => a.x === b.x && a.y === b.y;
+
+export interface CoordsPair {
+  from: Coords;
+  to: Coords;
+}
+
+export const compareXYPair = (a: CoordsPair, b: CoordsPair) => {
+  if (compareXY(a.from, b.from) && compareXY(a.to, b.to)) return true;
+  if (compareXY(a.to, b.from) && compareXY(a.from, b.to)) return true;
+  return false;
+};
+
+// export const invalidIndexErr = (index: number) =>
+//   Error(`invalid terrain index: ${index}`);
+
 export const envSchema = z.object({
   PUBLIC_KEY: z.string(),
   ONBOARD_QUEUE: z.string(),
@@ -27,7 +48,7 @@ export const memberSchema = z.object({
 export const optionSchema = z.object({
   name: z.string(),
   type: z.number(),
-  value: z.string().optional(),
+  value: z.union([z.string(), z.number()]).optional(),
   options: z.array(z.any()).optional(),
 });
 export type OptionSchema = z.infer<typeof optionSchema>;

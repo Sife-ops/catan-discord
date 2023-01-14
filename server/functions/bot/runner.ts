@@ -1,8 +1,15 @@
 import { GameCollection } from "@catan-discord/core/model";
-import { OptionSchema } from "./common";
+import {
+  compareXY,
+  compareXYPair,
+  Coords,
+  CoordsPair,
+  OptionSchema,
+} from "./common";
 import { z } from "zod";
 
 export interface CtxCfg {
+  // todo: include model
   body: any;
   channelId: string;
   env: {
@@ -98,6 +105,50 @@ export class Ctx {
       .reduce((a, c) => {
         return [...a, ...c];
       }, []);
+  }
+
+  getTypeIndex<T>(type: string, index: number): T | undefined {
+    return this.getFlatMap().filter((e) => e.type === type)[index];
+  }
+
+  getTypeIndexOrThrow<T>(type: string, index: number): T {
+    const a = this.getTypeIndex<T>(type, index);
+    if (!a) throw new Error("todo");
+    return a;
+  }
+
+  getRound() {
+    return this.getGame().round;
+  }
+
+  getRoads() {
+    return this.getGameCollection().RoadEntity.map((road) => ({
+      ...road,
+      from: { x: road.x1, y: road.y1 },
+      to: { x: road.x2, y: road.y2 },
+    }));
+  }
+
+  getPlayerRoads() {
+    return this.getRoads().filter((road) => road.playerId === this.userId);
+  }
+
+  hasRoad(r: CoordsPair) {
+    return !!this.getRoads().find((road) => compareXYPair(road, r));
+  }
+
+  getBuildings() {
+    return this.getGameCollection().BuildingEntity;
+  }
+
+  getPlayerBuildings() {
+    return this.getBuildings().filter(
+      (building) => building.playerId === this.userId
+    );
+  }
+
+  hasBuilding(b: Coords) {
+    return !!this.getBuildings().find((building) => compareXY(building, b));
   }
 }
 

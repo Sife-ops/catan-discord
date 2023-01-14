@@ -84,7 +84,7 @@ export const BuildingEntity = new Entity(
       },
 
       building: {
-        type: ["settlement", "city"],
+        type: ["settlement", "city"] as const,
         required: true,
       },
     },
