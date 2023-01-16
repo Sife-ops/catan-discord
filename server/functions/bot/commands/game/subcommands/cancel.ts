@@ -5,7 +5,7 @@ import { model } from "@catan-discord/core/model";
 export const cancel: Command = {
   handler: async (ctx) => {
     await model.entities.GameEntity.update({
-      channelId: ctx.channelId,
+      channelId: ctx.getChannelId(),
       gameId: ctx.getGame().gameId,
     })
       .set({ winner: "none" })

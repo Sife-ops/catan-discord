@@ -7,8 +7,7 @@ import {
 import * as commands from "./commands";
 import AWS from "aws-sdk";
 import nacl from "tweetnacl";
-import { envSchema, eventSchema, bodySchema, genericResponse } from "./common";
-import { model } from "@catan-discord/core/model";
+import { envSchema, eventSchema, genericResponse } from "./common";
 import { runner, Ctx } from "@catan-discord/bot/runner";
 
 // todo: add to ctx?
@@ -19,19 +18,20 @@ export const handler: Handler<
   APIGatewayProxyResultV2
 > = async (event) => {
   try {
-    const parsedEnv = envSchema.parse(process.env);
+    const { PUBLIC_KEY, ONBOARD_QUEUE: QueueUrl } = envSchema.parse(
+      process.env
+    );
     const parsedEvent = eventSchema.parse(event);
     const body = JSON.parse(parsedEvent.body);
-    const parsedBody = bodySchema.parse(body);
 
-    switch (parsedBody.type) {
+    switch (body.type) {
       case 1: {
         const verified = nacl.sign.detached.verify(
           Buffer.from(
             parsedEvent.headers["x-signature-ed25519"] + parsedEvent.body
           ),
           Buffer.from(parsedEvent.headers["x-signature-timestamp"], "hex"),
-          Buffer.from(parsedEnv.PUBLIC_KEY, "hex")
+          Buffer.from(PUBLIC_KEY, "hex")
         );
 
         if (!verified) {
@@ -45,27 +45,7 @@ export const handler: Handler<
       }
 
       case 2: {
-        // todo: move to constructor?
-        const gameCollection = await model.entities.GameEntity.query
-          .channel({ channelId: parsedBody.channel_id })
-          .where(({ winner }, { notExists }) => notExists(winner))
-          .go()
-          .then(({ data }) => data[0])
-          .then((game) => {
-            if (!game) return undefined;
-            return model.collections
-              .game({ gameId: game.gameId })
-              .go()
-              .then((e) => e.data);
-          });
-
-        const ctx = new Ctx({
-          body,
-          channelId: parsedBody.channel_id,
-          env: parsedEnv,
-          gameCollection,
-          userId: parsedBody.member.user.id,
-        });
+        const ctx = await Ctx.init(body);
 
         const commandName = ctx.getCommandName(0);
         if (!["game"].includes(commandName)) {
@@ -86,8 +66,8 @@ export const handler: Handler<
         const [_, run] = await Promise.all([
           sqs
             .sendMessage({
-              QueueUrl: parsedEnv.ONBOARD_QUEUE,
-              MessageBody: JSON.stringify(parsedBody.member.user),
+              QueueUrl,
+              MessageBody: JSON.stringify(body.member.user),
             })
             .promise(),
           runner(commands, commandName, ctx),

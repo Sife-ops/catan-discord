@@ -9,7 +9,7 @@ export const game: Command = {
     if (["add", "remove", "start", "cancel"].includes(subcommandName)) {
       if (!ctx.hasGame()) {
         return genericResponse("game does not exist");
-      } else if (ctx.getGame().userId !== ctx.userId) {
+      } else if (ctx.getGame().userId !== ctx.getUserId()) {
         return genericResponse("you are not the organizer");
       } else if (
         ["add", "remove", "start"].includes(subcommandName) &&

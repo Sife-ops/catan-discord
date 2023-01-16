@@ -4,9 +4,9 @@ import { model } from "@catan-discord/core/model";
 
 export const remove: Command = {
   handler: async (ctx) => {
-    const userId = ctx.getOptionValue("player");
+    const userId = ctx.getOptionValue("player") as string;
 
-    if (userId === ctx.userId) {
+    if (userId === ctx.getUserId()) {
       return genericResponse("cannot remove organizer");
     }
 

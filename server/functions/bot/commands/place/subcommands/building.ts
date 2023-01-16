@@ -25,7 +25,7 @@ export const building =
       ...terrainCoords,
       building,
       gameId: ctx.getGame().gameId,
-      playerId: ctx.userId,
+      playerId: ctx.getUserId(),
     }).go();
 
     return genericResponse(`place ${building}`);

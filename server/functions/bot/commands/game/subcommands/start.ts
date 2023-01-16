@@ -7,7 +7,7 @@ export const start: Command = {
   handler: async (ctx) => {
     const { gameId } = ctx.getGame();
     const flatMap = ctx.getFlatMap();
-    const channelId = ctx.channelId;
+    const channelId = ctx.getChannelId();
     const WEB_URL = ctx.env.WEB_URL;
 
     /**

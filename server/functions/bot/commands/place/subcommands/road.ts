@@ -1,5 +1,5 @@
 import { Command } from "@catan-discord/bot/runner";
-import { Coords, genericResponse } from "@catan-discord/bot/common";
+import { compareXY, Coords, genericResponse } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
 
 export const road: Command = {
@@ -11,17 +11,21 @@ export const road: Command = {
       return genericResponse("illegal move");
     }
 
-    // todo: intersections must be adjacent
     const from = ctx.getMapIndexOrThrow<Coords>(
       "intersection",
-      ctx.getOptionValue("fromIndex") as number
+      (ctx.getOptionValue("fromIndex") as number) - 1
     );
     const to = ctx.getMapIndexOrThrow<Coords>(
       "intersection",
-      ctx.getOptionValue("toIndex") as number
+      (ctx.getOptionValue("toIndex") as number) - 1
     );
 
-    if (ctx.hasRoad({ from, to })) {
+    if (
+      !ctx
+        .getMapAdjacent("intersection", from)
+        .find((adj) => compareXY(adj, to)) ||
+      ctx.hasRoad({ from, to })
+    ) {
       return genericResponse("illegal move");
     }
 
@@ -31,7 +35,7 @@ export const road: Command = {
       x2: to.x,
       y2: to.y,
       gameId: ctx.getGame().gameId,
-      playerId: ctx.userId,
+      playerId: ctx.getUserId(),
     }).go();
 
     return genericResponse("place road");

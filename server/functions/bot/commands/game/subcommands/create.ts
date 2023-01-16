@@ -4,8 +4,8 @@ import { model } from "@catan-discord/core/model";
 
 export const create: Command = {
   handler: async (ctx) => {
-    const userId = ctx.userId;
-    const channelId = ctx.channelId;
+    const userId = ctx.getUserId();
+    const channelId = ctx.getChannelId();
 
     /**
      * 1) one game per channel

@@ -1,40 +1,58 @@
-import { GameCollection } from "@catan-discord/core/model";
+import { GameCollection, model } from "@catan-discord/core/model";
 import { z } from "zod";
 
 import {
+  adjXY,
   compareXY,
   compareXYPair,
   Coords,
   CoordsPair,
+  envSchema,
   OptionSchema,
 } from "./common";
 
-export interface CtxCfg {
-  // todo: include model
-  body: any;
-  channelId: string;
-  env: {
-    PUBLIC_KEY: string;
-    ONBOARD_QUEUE: string;
-    WEB_URL: string;
-  };
-  gameCollection: GameCollection | undefined;
-  userId: string;
-}
-
 export class Ctx {
-  private ctxCfg;
   body;
-  channelId;
-  env;
-  userId;
 
-  constructor(c: CtxCfg) {
-    this.ctxCfg = c;
+  env;
+  gameCollection;
+
+  private constructor(c: {
+    body: any;
+    gameCollection: GameCollection | undefined;
+  }) {
     this.body = c.body;
-    this.channelId = c.channelId;
-    this.env = c.env;
-    this.userId = c.userId;
+
+    this.env = envSchema.parse(process.env);
+    this.gameCollection = c.gameCollection;
+  }
+
+  static async init(body: any) {
+    const gameCollection = await model.entities.GameEntity.query
+      .channel({ channelId: body.channel_id })
+      .where(({ winner }, { notExists }) => notExists(winner))
+      .go()
+      .then(({ data }) => data[0])
+      .then((game) => {
+        if (!game) return undefined;
+        return model.collections
+          .game({ gameId: game.gameId })
+          .go()
+          .then((e) => e.data);
+      });
+
+    return new Ctx({
+      body,
+      gameCollection,
+    });
+  }
+
+  getChannelId(): string {
+    return this.body.channel_id;
+  }
+
+  getUserId(): string {
+    return this.body.member.user.id;
   }
 
   getFlatOptions(): OptionSchema[][] {
@@ -77,8 +95,8 @@ export class Ctx {
   }
 
   getGameCollection() {
-    if (!this.ctxCfg.gameCollection) throw new Error("missing gameCollection");
-    return this.ctxCfg.gameCollection;
+    if (!this.gameCollection) throw new Error("missing gameCollection");
+    return this.gameCollection;
   }
 
   getGame() {
@@ -86,7 +104,7 @@ export class Ctx {
   }
 
   hasGame() {
-    return !!this.ctxCfg.gameCollection;
+    return !!this.gameCollection;
   }
 
   getMap() {
@@ -107,6 +125,21 @@ export class Ctx {
         return [...a, ...c];
       }, []);
   }
+
+  getMapAdjacent(type: string, coords: Coords) {
+    const a = adjXY(coords).map((offset) => ({
+      x: coords.x + offset.x,
+      y: coords.y + offset.y,
+    }));
+
+    return this.getFlatMap()
+      .filter((c) => a.find((cc) => compareXY(cc, c)))
+      .filter((c) => c.type === type);
+  }
+
+  // isAdj(a: Coords, type: string, b: Coords) {
+  //   this.getMapAdjacent(type, a).find((e) => compareXY(e, b));
+  // }
 
   getMapIndex<T>(type: string, index: number): T | undefined {
     return this.getFlatMap().filter((e) => e.type === type)[index];
@@ -131,7 +164,7 @@ export class Ctx {
   }
 
   getPlayerRoads() {
-    return this.getRoads().filter((road) => road.playerId === this.userId);
+    return this.getRoads().filter((road) => road.playerId === this.getUserId());
   }
 
   hasRoad(r: CoordsPair) {
@@ -144,7 +177,7 @@ export class Ctx {
 
   getPlayerBuildings() {
     return this.getBuildings().filter(
-      (building) => building.playerId === this.userId
+      (building) => building.playerId === this.getUserId()
     );
   }
 
@@ -154,7 +187,7 @@ export class Ctx {
 
   getUserPlayer() {
     const player = this.getGameCollection().PlayerEntity.find(
-      (player) => player.userId === this.userId
+      (player) => player.userId === this.getUserId()
     );
     if (!player) throw new Error("player not found");
     return player;

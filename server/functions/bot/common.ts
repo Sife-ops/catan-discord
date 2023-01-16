@@ -18,8 +18,35 @@ export const compareXYPair = (a: CoordsPair, b: CoordsPair) => {
   return false;
 };
 
-// export const invalidIndexErr = (index: number) =>
-//   Error(`invalid terrain index: ${index}`);
+export const adjXY = (coords: Coords) => {
+  const evenY = !(coords.y % 2 > 0);
+  return [
+    {
+      x: -1,
+      y: 0,
+    },
+    {
+      x: 1,
+      y: 0,
+    },
+    {
+      x: evenY ? -1 : 0,
+      y: 1,
+    },
+    {
+      x: evenY ? 0 : 1,
+      y: 1,
+    },
+    {
+      x: evenY ? -1 : 0,
+      y: -1,
+    },
+    {
+      x: evenY ? 0 : 1,
+      y: -1,
+    },
+  ];
+};
 
 export const envSchema = z.object({
   PUBLIC_KEY: z.string(),
