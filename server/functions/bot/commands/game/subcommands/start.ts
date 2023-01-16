@@ -181,31 +181,24 @@ export const start: Command = {
     ]);
 
     // 5) player order
+    const players = ctx
+      .getGameCollection()
+      .PlayerEntity.map((player) => ({
+        ...player,
+        roll: rollTwo(),
+      }))
+      .sort((a, b) => b.roll - a.roll);
+
     await Promise.all(
-      await model.entities.PlayerEntity.query
-        .game_({ gameId })
-        .go()
-        .then(({ data }) =>
-          data
-            .map((player) => ({
-              ...player,
-              roll: rollTwo(),
-            }))
-            .sort((a, b) => a.roll - b.roll)
-        )
-        .then((data) =>
-          data.map((player, i) =>
-            model.entities.PlayerEntity.update(player)
-              .set({ playerIndex: i })
-              .go()
-          )
-        )
+      players.map((player, i) =>
+        model.entities.PlayerEntity.update(player).set({ playerIndex: i }).go()
+      )
     );
 
     return {
       type: 4,
       data: {
-        content: "game started",
+        content: `game started, <@${players[0].userId}>'s turn`,
         embeds: [
           {
             title: "game url",

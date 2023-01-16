@@ -65,7 +65,7 @@ type UsersSchema = z.infer<typeof usersSchema>;
 
 export const dataSchema = z.object({
   name: z.string(),
-  options: z.array(optionSchema),
+  options: z.array(optionSchema).optional(),
   type: z.number(),
 });
 type DataSchema = z.infer<typeof dataSchema>;

@@ -7,7 +7,7 @@ import {
 import * as commands from "./commands";
 import AWS from "aws-sdk";
 import nacl from "tweetnacl";
-import { envSchema, eventSchema, bodySchema } from "./common";
+import { envSchema, eventSchema, bodySchema, genericResponse } from "./common";
 import { model } from "@catan-discord/core/model";
 import { runner, Ctx } from "@catan-discord/bot/runner";
 
@@ -45,6 +45,44 @@ export const handler: Handler<
       }
 
       case 2: {
+        // todo: move to constructor?
+        const gameCollection = await model.entities.GameEntity.query
+          .channel({ channelId: parsedBody.channel_id })
+          .where(({ winner }, { notExists }) => notExists(winner))
+          .go()
+          .then(({ data }) => data[0])
+          .then((game) => {
+            if (!game) return undefined;
+            return model.collections
+              .game({ gameId: game.gameId })
+              .go()
+              .then((e) => e.data);
+          });
+
+        const ctx = new Ctx({
+          body,
+          channelId: parsedBody.channel_id,
+          env: parsedEnv,
+          gameCollection,
+          userId: parsedBody.member.user.id,
+        });
+
+        const commandName = ctx.getCommandName(0);
+        if (!["game"].includes(commandName)) {
+          try {
+            const { started, playerIndex } = ctx.getGame();
+            if (!started) throw new Error("game not started");
+            if (ctx.getUserPlayer().playerIndex !== playerIndex) {
+              throw new Error("not your turn");
+            }
+            if (ctx.getRound() < 2 && !["place"].includes(commandName)) {
+              throw new Error("not allowed");
+            }
+          } catch (e: any) {
+            return genericResponse(e.message);
+          }
+        }
+
         const [_, run] = await Promise.all([
           sqs
             .sendMessage({
@@ -52,29 +90,7 @@ export const handler: Handler<
               MessageBody: JSON.stringify(parsedBody.member.user),
             })
             .promise(),
-
-          runner(
-            commands,
-            parsedBody.data.name,
-            new Ctx({
-              body,
-              channelId: parsedBody.channel_id,
-              env: parsedEnv,
-              gameCollection: await model.entities.GameEntity.query
-                .channel({ channelId: parsedBody.channel_id })
-                .where(({ winner }, { notExists }) => notExists(winner))
-                .go()
-                .then(({ data }) => data[0])
-                .then((game) => {
-                  if (!game) return undefined;
-                  return model.collections
-                    .game({ gameId: game.gameId })
-                    .go()
-                    .then((e) => e.data);
-                }),
-              userId: parsedBody.member.user.id,
-            })
-          ),
+          runner(commands, commandName, ctx),
         ]);
 
         return run;

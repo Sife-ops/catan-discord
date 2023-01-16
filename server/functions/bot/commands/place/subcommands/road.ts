@@ -8,20 +8,21 @@ export const road: Command = {
       ctx.getRound() < 2 && //
       ctx.getPlayerRoads().length > ctx.getRound()
     ) {
-      throw new Error("todo");
+      return genericResponse("illegal move");
     }
 
-    const from = ctx.getTypeIndexOrThrow<Coords>(
+    // todo: intersections must be adjacent
+    const from = ctx.getMapIndexOrThrow<Coords>(
       "intersection",
       ctx.getOptionValue("fromIndex") as number
     );
-    const to = ctx.getTypeIndexOrThrow<Coords>(
+    const to = ctx.getMapIndexOrThrow<Coords>(
       "intersection",
       ctx.getOptionValue("toIndex") as number
     );
 
     if (ctx.hasRoad({ from, to })) {
-      throw new Error("todo");
+      return genericResponse("illegal move");
     }
 
     await model.entities.RoadEntity.create({

@@ -1,4 +1,6 @@
 import { GameCollection } from "@catan-discord/core/model";
+import { z } from "zod";
+
 import {
   compareXY,
   compareXYPair,
@@ -6,7 +8,6 @@ import {
   CoordsPair,
   OptionSchema,
 } from "./common";
-import { z } from "zod";
 
 export interface CtxCfg {
   // todo: include model
@@ -107,12 +108,12 @@ export class Ctx {
       }, []);
   }
 
-  getTypeIndex<T>(type: string, index: number): T | undefined {
+  getMapIndex<T>(type: string, index: number): T | undefined {
     return this.getFlatMap().filter((e) => e.type === type)[index];
   }
 
-  getTypeIndexOrThrow<T>(type: string, index: number): T {
-    const a = this.getTypeIndex<T>(type, index);
+  getMapIndexOrThrow<T>(type: string, index: number): T {
+    const a = this.getMapIndex<T>(type, index);
     if (!a) throw new Error("todo");
     return a;
   }
@@ -149,6 +150,14 @@ export class Ctx {
 
   hasBuilding(b: Coords) {
     return !!this.getBuildings().find((building) => compareXY(building, b));
+  }
+
+  getUserPlayer() {
+    const player = this.getGameCollection().PlayerEntity.find(
+      (player) => player.userId === this.userId
+    );
+    if (!player) throw new Error("player not found");
+    return player;
   }
 }
 

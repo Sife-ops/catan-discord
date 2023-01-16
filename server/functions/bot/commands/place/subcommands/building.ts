@@ -1,32 +1,32 @@
-import { Command } from "@catan-discord/bot/runner";
+import { Coords, genericResponse } from "@catan-discord/bot/common";
+import { CommandHandler } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
-import { genericResponse, Coords, compareXY } from "@catan-discord/bot/common";
 
-export const building: Command = {
-  handler: async (ctx) => {
+export const building =
+  (building: "settlement" | "city"): CommandHandler =>
+  async (ctx) => {
     if (
       ctx.getRound() < 2 &&
       ctx.getPlayerBuildings().length > ctx.getRound()
     ) {
-      throw new Error("todo");
+      return genericResponse("illegal move");
     }
 
-    const terrainCoords = ctx.getTypeIndexOrThrow<Coords>(
+    const terrainCoords = ctx.getMapIndexOrThrow<Coords>(
       "terrain",
-      ctx.getOptionValue("index") as number
+      (ctx.getOptionValue("ind") as number) - 1 // todo: 0 start index doesn't work
     );
 
     if (ctx.hasBuilding(terrainCoords)) {
-      throw new Error("todo");
+      return genericResponse("illegal move");
     }
 
     await model.entities.BuildingEntity.create({
       ...terrainCoords,
-      building: ctx.getOptionValue("building") as "settlement" | "city",
+      building,
       gameId: ctx.getGame().gameId,
       playerId: ctx.userId,
     }).go();
 
-    return genericResponse("place settlement");
-  },
-};
+    return genericResponse(`place ${building}`);
+  };
