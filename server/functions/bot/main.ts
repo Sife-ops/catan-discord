@@ -8,7 +8,8 @@ import * as commands from "./commands";
 import AWS from "aws-sdk";
 import nacl from "tweetnacl";
 import { envSchema, eventSchema, genericResponse } from "./common";
-import { runner, Ctx } from "@catan-discord/bot/runner";
+import { runner } from "@catan-discord/bot/runner";
+import { Ctx } from "./ctx";
 
 // todo: add to ctx?
 const sqs = new AWS.SQS();
