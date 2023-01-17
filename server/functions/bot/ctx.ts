@@ -46,6 +46,7 @@ export class Ctx {
     });
   }
 
+  // body
   getChannelId(): string {
     return this.body.channel_id;
   }
@@ -54,6 +55,7 @@ export class Ctx {
     return this.body.member.user.id;
   }
 
+  // options
   getFlatOptions(): OptionSchema[][] {
     const recurse = (options: OptionSchema[]): OptionSchema[][] => {
       if (!options || options.length < 1) return [];
@@ -93,33 +95,22 @@ export class Ctx {
     return value;
   }
 
+  // game
   getGameCollection() {
     if (!this.gameCollection) throw new Error("missing gameCollection");
     return this.gameCollection;
   }
 
-  getPlayers() {
-    return this.getGameCollection().PlayerEntity;
-  }
-
-  getPlayer(index?: number) {
-    const player = this.getPlayers().find((player) => {
-      if (typeof index === "number") {
-        return player.playerIndex === index;
-      } else {
-        return player.userId === this.getUserId();
-      }
-    });
-    if (!player) throw new Error("missing player");
-    return player;
+  hasGame() {
+    return !!this.gameCollection;
   }
 
   getGame() {
     return this.getGameCollection().GameEntity[0];
   }
 
-  hasGame() {
-    return !!this.gameCollection;
+  getRound() {
+    return this.getGame().round;
   }
 
   getMap() {
@@ -162,10 +153,24 @@ export class Ctx {
     return a;
   }
 
-  getRound() {
-    return this.getGame().round;
+  // player
+  getPlayers() {
+    return this.getGameCollection().PlayerEntity;
   }
 
+  getPlayer(index?: number) {
+    const player = this.getPlayers().find((player) => {
+      if (typeof index === "number") {
+        return player.playerIndex === index;
+      } else {
+        return player.userId === this.getUserId();
+      }
+    });
+    if (!player) throw new Error("missing player");
+    return player;
+  }
+
+  // road
   getRoads() {
     return this.getGameCollection().RoadEntity.map((road) => ({
       ...road,
@@ -182,6 +187,7 @@ export class Ctx {
     return !!this.getRoads().find((road) => compareXYPair(road, r));
   }
 
+  // building
   getBuildings() {
     return this.getGameCollection().BuildingEntity;
   }
@@ -194,13 +200,5 @@ export class Ctx {
 
   hasBuilding(b: Coords) {
     return !!this.getBuildings().find((building) => compareXY(building, b));
-  }
-
-  getUserPlayer() {
-    const player = this.getGameCollection().PlayerEntity.find(
-      (player) => player.userId === this.getUserId()
-    );
-    if (!player) throw new Error("player not found");
-    return player;
   }
 }

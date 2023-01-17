@@ -27,6 +27,7 @@ export const add: Command = {
     const { gameId } = ctx.getGame();
     const userId = ctx.getOptionValue("player") as string;
 
+    // todo: refer to ctx.gameCollection
     const player = await model.entities.PlayerEntity.query
       .game_({ gameId, userId })
       .go()

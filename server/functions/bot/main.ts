@@ -53,7 +53,7 @@ export const handler: Handler<
           try {
             const { started, playerIndex } = ctx.getGame();
             if (!started) throw new Error("game not started");
-            if (ctx.getUserPlayer().playerIndex !== playerIndex) {
+            if (ctx.getPlayer().playerIndex !== playerIndex) {
               throw new Error("not your turn");
             }
             if (ctx.getRound() < 2 && !["place", "end"].includes(commandName)) {

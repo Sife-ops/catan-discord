@@ -10,6 +10,7 @@ export const remove: Command = {
       return genericResponse("cannot remove organizer");
     }
 
+    // todo: refer to ctx.gameCollection
     const playerId = await model.entities.PlayerEntity.query
       .game_({
         gameId: ctx.getGame().gameId,
