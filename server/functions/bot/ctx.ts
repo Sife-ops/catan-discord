@@ -98,6 +98,22 @@ export class Ctx {
     return this.gameCollection;
   }
 
+  getPlayers() {
+    return this.getGameCollection().PlayerEntity;
+  }
+
+  getPlayer(index?: number) {
+    const player = this.getPlayers().find((player) => {
+      if (typeof index === "number") {
+        return player.playerIndex === index;
+      } else {
+        return player.userId === this.getUserId();
+      }
+    });
+    if (!player) throw new Error("missing player");
+    return player;
+  }
+
   getGame() {
     return this.getGameCollection().GameEntity[0];
   }
@@ -126,13 +142,13 @@ export class Ctx {
   }
 
   getMapAdjacent(type: string, coords: Coords) {
-    const a = adjXY(coords).map((offset) => ({
+    const adj = adjXY(coords).map((offset) => ({
       x: coords.x + offset.x,
       y: coords.y + offset.y,
     }));
 
     return this.getFlatMap()
-      .filter((c) => a.find((cc) => compareXY(cc, c)))
+      .filter((c) => adj.find((cc) => compareXY(cc, c)))
       .filter((c) => c.type === type);
   }
 

@@ -9,7 +9,7 @@ export const place = {
       options: [
         {
           name: "ind",
-          description: "map terrain index",
+          description: "intersection index",
           type: 4,
           required: true,
         },
@@ -23,7 +23,7 @@ export const place = {
       options: [
         {
           name: "ind",
-          description: "map terrain index",
+          description: "intersection index",
           type: 4,
           required: true,
         },
@@ -37,13 +37,13 @@ export const place = {
       options: [
         {
           name: "ind1",
-          description: "from intersection index",
+          description: "intersection index",
           type: 4,
           required: true,
         },
         {
           name: "ind2",
-          description: "to intersection index",
+          description: "intersection index",
           type: 4,
           required: true,
         },

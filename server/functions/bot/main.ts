@@ -56,7 +56,7 @@ export const handler: Handler<
             if (ctx.getUserPlayer().playerIndex !== playerIndex) {
               throw new Error("not your turn");
             }
-            if (ctx.getRound() < 2 && !["place"].includes(commandName)) {
+            if (ctx.getRound() < 2 && !["place", "end"].includes(commandName)) {
               throw new Error("not allowed");
             }
           } catch (e: any) {

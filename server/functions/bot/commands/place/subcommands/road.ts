@@ -4,26 +4,30 @@ import { model } from "@catan-discord/core/model";
 
 export const road: Command = {
   handler: async (ctx) => {
-    if (
-      ctx.getRound() < 2 && //
-      ctx.getPlayerRoads().length > ctx.getRound()
-    ) {
-      return genericResponse("illegal move");
-    }
-
     const from = ctx.getMapIndexOrThrow<Coords>(
       "intersection",
-      (ctx.getOptionValue("fromIndex") as number) - 1
+      (ctx.getOptionValue("ind1") as number) - 1
     );
     const to = ctx.getMapIndexOrThrow<Coords>(
       "intersection",
-      (ctx.getOptionValue("toIndex") as number) - 1
+      (ctx.getOptionValue("ind2") as number) - 1
     );
 
     if (
+      // exceeds first-two-round limit
+      (ctx.getRound() < 2 && ctx.getPlayerRoads().length > ctx.getRound()) ||
+      // road not connected to player's building or road
+      ![
+        ...ctx.getPlayerBuildings(),
+        ...ctx.getPlayerRoads().reduce<Coords[]>((a, c) => {
+          return [...a, { ...c.from }, { ...c.to }];
+        }, []),
+      ].some((coords) => !![from, to].find((c) => compareXY(c, coords))) ||
+      // coords not adjacent
       !ctx
         .getMapAdjacent("intersection", from)
         .find((adj) => compareXY(adj, to)) ||
+      // road already exists
       ctx.hasRoad({ from, to })
     ) {
       return genericResponse("illegal move");
