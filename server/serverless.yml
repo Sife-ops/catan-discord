@@ -38,6 +38,7 @@ custom: ${file(./serverless/custom.yml)}
 
 functions:
   connection:
+    name: ${self:service}-${opt:stage}-connection
     handler: functions/connection.handler
     events:
       - websocket:
