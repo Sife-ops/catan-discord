@@ -7,7 +7,6 @@ import Sockette from "sockette";
 
 export const Dev = () => {
   useEffect(() => {
-    // const ws = new Sockette("ws://localhost:3000", {
     const ws = new Sockette(
       "wss://15hiut6zyb.execute-api.us-east-1.amazonaws.com/wgoettsch",
       {
@@ -24,9 +23,16 @@ export const Dev = () => {
 
     //   ws.send("Hello, world!");
     //   ws.json({ type: "ping" });
+
+    // setTimeout(() => {
     //   ws.close(); // graceful shutdown
+    // }, 3000);
+
     // Reconnect 10s later
-    // setTimeout(ws.reconnect, 10e3);
+
+    // setTimeout(() => {
+    //   ws.reconnect;
+    // }, 10e3);
   }, []);
 
   return (

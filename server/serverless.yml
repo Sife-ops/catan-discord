@@ -43,8 +43,8 @@ functions:
     events:
       - websocket:
           route: $connect
-      # - websocket:
-      #     route: $disconnect
+      - websocket:
+          route: $disconnect
 
   uploadMap:
     name: ${self:service}-${opt:stage}-upload-map
