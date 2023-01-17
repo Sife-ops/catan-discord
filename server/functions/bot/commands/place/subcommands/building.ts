@@ -1,4 +1,4 @@
-import { Coords, genericResponse } from "@catan-discord/bot/common";
+import { compareXY, Coords, genericResponse } from "@catan-discord/bot/common";
 import { CommandHandler } from "@catan-discord/bot/runner";
 import { model } from "@catan-discord/core/model";
 
@@ -10,11 +10,25 @@ export const building =
       (ctx.getOptionValue("ind") as number) - 1 // todo: 0 start index doesn't work
     );
 
-    // todo: connected to road (unless < 2 rounds), no adj building
     if (
       // exceeds first-two-round limit
       (ctx.getRound() < 2 &&
         ctx.getPlayerBuildings().length > ctx.getRound()) ||
+      // not connected to road
+      (ctx.getRound() > 1 &&
+        !ctx
+          .getPlayerRoads()
+          .reduce<Coords[]>((a, c) => [...a, { ...c.from }, { ...c.to }], [])
+          .find((c) => compareXY(c, coords))) ||
+      // too close to another building
+      ctx
+        .getBuildings()
+        .some(
+          (building) =>
+            !!ctx
+              .getMapAdjacent("intersection", coords)
+              .find((intersection) => compareXY(intersection, building))
+        ) ||
       // building already exists
       ctx.hasBuilding(coords)
     ) {

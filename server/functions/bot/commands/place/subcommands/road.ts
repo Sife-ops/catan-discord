@@ -19,14 +19,14 @@ export const road: Command = {
       // road not connected to player's building or road
       ![
         ...ctx.getPlayerBuildings(),
-        ...ctx.getPlayerRoads().reduce<Coords[]>((a, c) => {
-          return [...a, { ...c.from }, { ...c.to }];
-        }, []),
+        ...ctx
+          .getPlayerRoads()
+          .reduce<Coords[]>((a, c) => [...a, { ...c.from }, { ...c.to }], []),
       ].some((coords) => !![from, to].find((c) => compareXY(c, coords))) ||
       // coords not adjacent
       !ctx
         .getMapAdjacent("intersection", from)
-        .find((adj) => compareXY(adj, to)) ||
+        .find((intersection) => compareXY(intersection, to)) ||
       // road already exists
       ctx.hasRoad({ from, to })
     ) {

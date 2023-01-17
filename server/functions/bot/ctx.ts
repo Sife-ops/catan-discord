@@ -149,7 +149,7 @@ export class Ctx {
 
     return this.getFlatMap()
       .filter((c) => adj.find((cc) => compareXY(cc, c)))
-      .filter((c) => c.type === type);
+      .filter((c) => c.type === type) as Coords[];
   }
 
   getMapIndex<T>(type: string, index: number): T | undefined {
