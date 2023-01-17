@@ -37,6 +37,14 @@ provider:
 custom: ${file(./serverless/custom.yml)}
 
 functions:
+  connection:
+    handler: functions/connection.handler
+    events:
+      - websocket:
+          route: $connect
+      # - websocket:
+      #     route: $disconnect
+
   uploadMap:
     name: ${self:service}-${opt:stage}-upload-map
     handler: functions/upload-map.handler

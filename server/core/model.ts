@@ -11,6 +11,7 @@ export const model = new Service({
   PlayerEntity: Entity.PlayerEntity,
   RoadEntity: Entity.RoadEntity,
   TerrainEntity: Entity.TerrainEntity,
+  ConnectionEntity: Entity.ConnectionEntity,
 });
 
 export interface GameCollection {

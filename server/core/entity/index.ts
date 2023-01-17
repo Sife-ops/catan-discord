@@ -1,5 +1,6 @@
 export * from "./building";
 export * from "./chit";
+export * from "./connection";
 export * from "./game";
 export * from "./harbor";
 export * from "./map";
