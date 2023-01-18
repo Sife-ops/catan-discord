@@ -24,9 +24,13 @@ export const Dev = () => {
     //   ws.send("Hello, world!");
     //   ws.json({ type: "ping" });
 
-    // setTimeout(() => {
-    //   ws.close(); // graceful shutdown
-    // }, 3000);
+    setTimeout(() => {
+      //   ws.close(); // graceful shutdown
+      ws.json({
+        action: "sendGameId",
+        gameId: "asdf",
+      });
+    }, 3000);
 
     // Reconnect 10s later
 

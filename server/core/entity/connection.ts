@@ -15,10 +15,41 @@ export const ConnectionEntity = new Entity(
           composite: [],
         },
       },
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      game_: {
+        collection: "game",
+        index: "gsi2",
+        pk: {
+          field: "gsi2pk",
+          composite: ["gameId"],
+        },
+        sk: {
+          field: "gsi2sk",
+          composite: ["connectionId"],
+        },
+      },
     },
 
     attributes: {
       connectionId: {
+        type: "string",
+        required: true,
+      },
+
+      gameId: {
         type: "string",
         required: true,
       },
