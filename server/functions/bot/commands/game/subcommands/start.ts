@@ -2,13 +2,13 @@ import { Command } from "@catan-discord/bot/runner";
 import { TerrainEntityType } from "@catan-discord/core/entity";
 import { genericResponse, rollTwo } from "@catan-discord/bot/common";
 import { model } from "@catan-discord/core/model";
+import AWS from "aws-sdk";
 
 export const start: Command = {
   handler: async (ctx) => {
     const { gameId } = ctx.getGame();
     const flatMap = ctx.getFlatMap();
     const channelId = ctx.getChannelId();
-    const WEB_URL = ctx.env.WEB_URL;
 
     /**
      * 1) count players
@@ -17,19 +17,15 @@ export const start: Command = {
      *   2b) chits
      *   2c) harbors
      * 3) create entities
-     * 4) start game
-     * 5) player order
+     * 4) player order
+     * 5) start game
+     * 6) message websocket clients
      */
 
     // todo: robber
 
     // 1) count players
-    const playerCount = await model.entities.PlayerEntity.query
-      .game_({ gameId })
-      .go()
-      .then(({ data }) => data.length);
-
-    if (playerCount < 2) {
+    if (ctx.getPlayers().length < 2) {
       return genericResponse("not enough players");
     }
 
@@ -146,8 +142,16 @@ export const start: Command = {
 
     const harborChooser = randomNoRepeat(harborResources);
 
-    // 3) create entities
+    const players = ctx
+      .getGameCollection()
+      .PlayerEntity.map((player) => ({
+        ...player,
+        roll: rollTwo(),
+      }))
+      .sort((a, b) => b.roll - a.roll);
+
     await Promise.all([
+      // 3) create entities
       ...resources.map((e) => model.entities.TerrainEntity.create(e).go()),
       ...resources
         .filter((e) => e.terrain !== "desert")
@@ -171,7 +175,12 @@ export const start: Command = {
         }).go();
       }),
 
-      // 4) start game
+      // 4) player order
+      ...players.map((player, i) =>
+        model.entities.PlayerEntity.update(player).set({ playerIndex: i }).go()
+      ),
+
+      // 5) start game
       model.entities.GameEntity.update({
         channelId,
         gameId,
@@ -180,34 +189,20 @@ export const start: Command = {
         .go(),
     ]);
 
-    // 5) player order
-    const players = ctx
-      .getGameCollection()
-      .PlayerEntity.map((player) => ({
-        ...player,
-        roll: rollTwo(),
-      }))
-      .sort((a, b) => b.roll - a.roll);
-
+    // 6) message websocket clients
     await Promise.all(
-      players.map((player, i) =>
-        model.entities.PlayerEntity.update(player).set({ playerIndex: i }).go()
-      )
+      ctx
+        .getGameCollection()
+        .ConnectionEntity.map(({ connectionId }) =>
+          sendMessageToClient(
+            "15hiut6zyb.execute-api.us-east-1.amazonaws.com/wgoettsch",
+            connectionId,
+            { action: "update" }
+          )
+        )
     );
 
-    return {
-      type: 4,
-      data: {
-        content: `game started, <@${players[0].userId}>'s turn`,
-        embeds: [
-          {
-            title: "game url",
-            url: `https://${WEB_URL}/game/${gameId}`,
-            color: 0xff0000,
-          },
-        ],
-      },
-    };
+    return genericResponse(`game started, <@${players[0].userId}>'s turn`);
   },
 };
 
@@ -223,3 +218,27 @@ const randomNoRepeat = <T>(array: T[]) => {
     return item;
   };
 };
+
+// todo: move this!!
+const sendMessageToClient = (url: string, connectionId: string, payload: any) =>
+  new Promise((resolve, reject) => {
+    const apigatewaymanagementapi = new AWS.ApiGatewayManagementApi({
+      endpoint: url,
+    });
+
+    apigatewaymanagementapi.postToConnection(
+      {
+        ConnectionId: connectionId,
+        Data: JSON.stringify(payload),
+      },
+
+      (err, data) => {
+        if (err) {
+          console.log("err is", err);
+          reject(err);
+        }
+
+        resolve(data);
+      }
+    );
+  });

@@ -1,4 +1,5 @@
 import * as Entity from "@catan-discord/server/core/entity";
+import { GameCollection } from "@catan-discord/server/core/model";
 import Sockette from "sockette";
 import { ulid } from "ulid";
 import { useEffect, useState } from "react";
@@ -9,9 +10,27 @@ export const Game = () => {
   const { gameId } = useParams();
 
   const [ws, setWs] = useState<Sockette>();
+
+  const [gameData, setGameData] = useState<{
+    gameCollection: GameCollection;
+    users: Entity.UserEntityType[];
+  }>();
+
   const [hexes, setHexes] = useState<JSX.Element[]>();
   const [chits, setChits] = useState<JSX.Element[]>();
   const [harbor, setHarbors] = useState<JSX.Element[]>();
+
+  const updateGameData = () => {
+    fetch(import.meta.env.VITE_API_URL + "/game", {
+      method: "POST",
+      body: JSON.stringify({ gameId }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("no game data");
+        setGameData(res.data);
+      });
+  };
 
   useEffect(() => {
     const ws = new Sockette(
@@ -27,81 +46,70 @@ export const Game = () => {
             data: { gameId, clientId },
           });
         },
-        onmessage: (e) => console.log("Received:", e),
+        onmessage: (e) => {
+          console.log("Received:", e);
+          const parsedData = JSON.parse(e.data);
+          switch (parsedData.action) {
+            case "update":
+              updateGameData();
+              break;
+
+            default:
+              break;
+          }
+        },
         onreconnect: (e) => console.log("Reconnecting...", e),
         onmaximum: (e) => console.log("Stop Attempting!", e),
         onclose: (e) => console.log("Closed!", e),
         onerror: (e) => console.log("Error:", e),
       }
     );
+
+    updateGameData();
   }, []);
 
   useEffect(() => {
-    if (ws) {
-      const reconnect = setInterval(() => {
-        ws.reconnect();
-      }, 60000);
-      return () => clearInterval(reconnect);
+    if (gameData) {
+      const map = JSON.parse(gameData.gameCollection.GameEntity[0].map) as {
+        type: string;
+      }[][];
+
+      const flatMap = map
+        .map((row, iRow) =>
+          row.map((col, iCol) => ({
+            ...col,
+            x: iCol,
+            y: iRow,
+          }))
+        )
+        .reduce((a, c) => {
+          return [...a, ...c];
+        }, []);
+
+      setHexes([
+        ...flatMap
+          .filter((e) => ["ocean", "harbor"].includes(e.type))
+          .map(mapHex),
+        ...gameData.gameCollection.TerrainEntity.map(mapHex),
+      ]);
+
+      setChits(gameData.gameCollection.ChitEntity.map(mapChit));
+      setHarbors(gameData.gameCollection.HarborEntity.map(mapHarbor));
     }
-  }, [ws]);
-
-  // useEffect(() => {
-  //   fetch(import.meta.env.VITE_API_URL + "/game", {
-  //     method: "POST",
-  //     body: JSON.stringify({ gameId }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((res) => {
-  //       if (!res.ok) throw new Error("no game data");
-  //       return res.data as {
-  //         gameCollection: {
-  //           GameEntity: Entity.GameEntityType[];
-  //           TerrainEntity: Entity.TerrainEntityType[];
-  //           ChitEntity: Entity.ChitEntityType[];
-  //           HarborEntity: Entity.HarborEntityType[];
-  //         };
-  //         users: Entity.UserEntityType[];
-  //       };
-  //     })
-  //     .then((data) => {
-  //       const map = JSON.parse(data.gameCollection.GameEntity[0].map) as {
-  //         type: string;
-  //       }[][];
-
-  //       const flatMap = map
-  //         .map((row, iRow) =>
-  //           row.map((col, iCol) => ({
-  //             ...col,
-  //             x: iCol,
-  //             y: iRow,
-  //           }))
-  //         )
-  //         .reduce((a, c) => {
-  //           return [...a, ...c];
-  //         }, []);
-
-  //       setHexes([
-  //         ...flatMap
-  //           .filter((e) => ["ocean", "harbor"].includes(e.type))
-  //           .map(mapHex),
-  //         ...data.gameCollection.TerrainEntity.map(mapHex),
-  //       ]);
-
-  //       setChits(data.gameCollection.ChitEntity.map(mapChit));
-  //       setHarbors(data.gameCollection.HarborEntity.map(mapHarbor));
-  //     });
-  // }, []);
+  }, [gameData]);
 
   return (
     <div>
-      {gameId}
-      {/* <svg viewBox="0 0 120 150">
-        <g transform="translate(10, 10)">
-          {hexes}
-          {chits}
-          {harbor}
-        </g>
-      </svg> */}
+      <div>{gameId}</div>
+      <div>
+        <svg viewBox="0 0 120 150">
+          <g transform="translate(10, 10)">
+            {hexes}
+            {chits}
+            {harbor}
+          </g>
+        </svg>
+      </div>
     </div>
   );
 };

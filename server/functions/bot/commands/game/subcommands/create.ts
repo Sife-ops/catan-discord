@@ -29,17 +29,28 @@ export const create: Command = {
     }
 
     // 3) create game
-    const gameMutation = await model.entities.GameEntity.create({
+    const gameId = await model.entities.GameEntity.create({
       channelId,
       map,
       userId,
-    }).go();
+    })
+      .go()
+      .then(({ data }) => data.gameId);
 
-    await model.entities.PlayerEntity.create({
-      gameId: gameMutation.data.gameId,
-      userId,
-    }).go();
+    await model.entities.PlayerEntity.create({ gameId, userId }).go();
 
-    return genericResponse("game created");
+    return {
+      type: 4,
+      data: {
+        content: `game created`,
+        embeds: [
+          {
+            title: "game url",
+            url: `https://${ctx.env.WEB_URL}/game/${gameId}`,
+            color: 0xff0000,
+          },
+        ],
+      },
+    };
   },
 };

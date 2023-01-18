@@ -22,4 +22,5 @@ export interface GameCollection {
   PlayerEntity: Entity.PlayerEntityType[];
   RoadEntity: Entity.RoadEntityType[];
   TerrainEntity: Entity.TerrainEntityType[];
+  ConnectionEntity: Entity.ConnectionEntityType[];
 }
