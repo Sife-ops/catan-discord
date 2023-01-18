@@ -7,7 +7,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/dev" element={<Dev />} />
+        {/* <Route path="/dev" element={<Dev />} /> */}
         <Route path="/game/:gameId" element={<Game />} />
         <Route path="/error" element={<div>404</div>} />
         <Route path="*" element={<Navigate to="/error" />} />

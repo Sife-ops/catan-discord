@@ -38,13 +38,18 @@ export const ConnectionEntity = new Entity(
         },
         sk: {
           field: "gsi2sk",
-          composite: ["connectionId"],
+          composite: ["clientId"],
         },
       },
     },
 
     attributes: {
       connectionId: {
+        type: "string",
+        required: true,
+      },
+
+      clientId: {
         type: "string",
         required: true,
       },

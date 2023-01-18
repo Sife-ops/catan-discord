@@ -28,8 +28,11 @@ const sendMessageToClient = (url: string, connectionId: string, payload: any) =>
   });
 
 export const foo: Command = {
-  handler: async () => {
-    const connectionIds = await model.entities.ConnectionEntity.scan
+  handler: async (ctx) => {
+    const connectionIds = await model.entities.ConnectionEntity.query
+      .game_({
+        gameId: ctx.getGame().gameId,
+      })
       .go()
       .then((e) => e.data.map((e) => e.connectionId));
 
